@@ -5,7 +5,7 @@ PYPACKTEST
 This document is written based on `Python 3.5.2` and `2.7.13` with `pip 9.0.1`, and `setuptools 27.2.0`.
 
 
-##Simplest package
+## Simplest package
 
 Consider a folder as below:
 
@@ -134,7 +134,7 @@ $ python -c "import testpack; import testpack"
 I count ten: 1 2 3 4 5 6 7 8 9 10
 ```
 
-Of course, we can let the file do more useful things than printing numbers.  An important application is to associate functions directly to the package.  Currently, our `say_hello` function is located at `testpack.greeting.say_hello`.  It could be better in some cases if the function is directly under the package name.  We can do this using `__init__.py`.
+Of course, we can let the file do more useful things than printing numbers.  An important application is to associate functions directly to the package.  Currently, our `say_hello` function is accessed by `testpack.greeting.say_hello`.  It could be better in some cases if the function is directly under the package name.  We can do this using `__init__.py`.
 
 Edit `__init__.py` as follows:
 
@@ -155,4 +155,4 @@ Hello!
 I find this quite useful, particularly to fetch package's core functionalities (functions or classes) directly under the package.
 
 
-##Dependencies
+## Dependencies
