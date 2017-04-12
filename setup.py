@@ -5,11 +5,11 @@ from setuptools import setup, find_packages
 
 setup(
     name='testpack',
-    version='0.2',
+    version='0.1',
     packages=find_packages(),
 
-    author='Kota Mori',
-    author_email='kmori05@gmail.com',
+    author='Someone nice',
+    author_email='myemail@yahoo.com',
     description='Test package',
     license='TBD',
     keywords='python setuptools package test',
