@@ -57,14 +57,14 @@ So, `greeting` module has only one function called `say_hello`, which prints mes
 Finally, leave `__init__.py` file empty.
 
 
-Okay, now we are ready to install this package to your python.
+Okay, now we are ready to install this package to the python.
 At the `testpack/` folder, run the following command:
 
 ```{bash}
 $ pip install -U .
 ```
 
-`.` indicates that the current folder is the package to install.  You can move one folder up and run `pip install -U ./pypacktest`.
+`.` indicates that the current folder is the package to install.  You can also move one folder up and run `pip install -U ./pypacktest`.
 
 The option `-U` forces to upgrade the package, whether or not you already have the latest version.  This is useful for our experiments since we make slight changes in our source code and folders and see differences resulted from them.  If we omit `-U` option, then `pip` will skip installation saying "Requirement already satisfied".
 
