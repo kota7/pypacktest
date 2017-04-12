@@ -10,7 +10,7 @@ This document is written based on `Python 3.5.2` and `2.7.13` with `pip 9.0.1`, 
 Consider a folder as below:
 
 ```
-pypacktest 
+pypacktest/
     setup.py
     testpack/
         __init__.py
