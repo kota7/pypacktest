@@ -23,6 +23,7 @@ If we write appropriate codes in `setup.py`, then we are ready to install this u
 And here is the minimal `setup.py`.
 
 *setup.py*
+
 ```{python}
 # -*- coding: utf-8 -*-
 
@@ -43,6 +44,7 @@ Hence, we can also write `packages=["testpack"]`.  If we have a lot of packages 
 Now let's take a look our only module, `greeting.py`.
 
 *greeting.py*
+
 ```(python}
 # -*- coding: utf-8 -*-
 

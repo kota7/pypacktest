@@ -1,0 +1,64 @@
+<h1 id="pypacktest">PYPACKTEST</h1>
+<p>This document is written based on <code>Python 3.5.2</code> and <code>2.7.13</code> with <code>pip 9.0.1</code>, and <code>setuptools 27.2.0</code>.</p>
+<h2 id="simplest-package">Simplest package</h2>
+<p>Consider a folder as below:</p>
+<pre><code>pypacktest 
+    setup.py
+    testpack/
+        __init__.py
+        greeting.py</code></pre>
+<p>Surprisingly, this is already a package!<br />If we write appropriate codes in <code>setup.py</code>, then we are ready to install this using <code>pip</code> command.</p>
+<p>And here is the minimal <code>setup.py</code>.</p>
+<p><em>setup.py</em></p>
+<pre><code># -*- coding: utf-8 -*-
+
+from setuptools import setup, find_packages
+
+setup(
+    name=&#39;testpack&#39;,
+    version=&#39;0.1&#39;,
+    packages=find_packages(),
+)</code></pre>
+<p>First, we import <code>setup</code> function from <code>setuptools</code> module. <code>setup</code> function does most of the job for putting together packages provided that we give a appropriate scripts. <code>find_packages</code> function, which also comes from <code>setuptools</code> module, is a helpful function that finds package folder under the directory tree. In this application, the function detects <code>testpack/</code> folder since it is the only folder that has <code>__init__.py</code> (As a rule, folders with <code>__init__.py</code> file are regarded as a package.) Hence, we can also write <code>packages=[&quot;testpack&quot;]</code>. If we have a lot of packages under a same folder, then <code>find_packages</code> function reduces our writing.</p>
+<p>Now let's take a look our only module, <code>greeting.py</code>.</p>
+<p><em>greeting.py</em> ```(python} # -<em>- coding: utf-8 -</em>-</p>
+<p>def say_hello(): print(&quot;Hello!&quot;) ```</p>
+<p>So, <code>greeting</code> module has only one function called <code>say_hello</code>, which prints message &quot;Hello!&quot; on the console.</p>
+<p>Finally, leave <code>__init__.py</code> file empty.</p>
+<p>Okay, now we are ready to install this package to your python. At the <code>testpack/</code> folder, run the following command:</p>
+<p><code>{bash} $ pip install -U .</code></p>
+<p><code>.</code> indicates that the current folder is the package to install. You can move one folder up and run <code>pip install -U ./pypacktest</code>.</p>
+<p>The option <code>-U</code> forces to upgrade the package, whether or not you already have the latest version. This is useful for our experiments since we make slight changes in our source code and folders and see differences resulted from them. If we omit <code>-U</code> option, then <code>pip</code> will skip installation saying &quot;Requirement already satisfied&quot;.</p>
+<p>If the above command runs successfully, then <code>testpack</code> should already installed in python. To confirm this, run:</p>
+<p><code>{bash} $ pip list --format columns</code></p>
+<p>In my environment, I get the following result. Yes! <code>testpack ver0.1</code> is installed!</p>
+<pre><code>Package    Version
+---------- -------
+pip        9.0.1  
+setuptools 27.2.0 
+testpack   0.1    
+wheel      0.29.0 </code></pre>
+<p>We can now use <code>testpack</code> package and functions therein like other packages. One caution is that we need to import <code>testpack.greeting</code>, not just <code>testpack</code>. To see this, run the followings on the terminal. Note that the option <code>-c</code> lets you type in python commands without starting a python session.</p>
+<p><code>{bash} $ python -c &quot;import testpack.greeting; testpack.greeting.say_hello()&quot; Hello!</code> The message &quot;Hello!&quot; is printed as desired. However,</p>
+<p><code>{bash} $ python -c &quot;import testpack; testpack.greeting.say_hello()&quot; Traceback (most recent call last):   File &quot;&lt;string&gt;&quot;, line 1, in &lt;module&gt; AttributeError: module 'testpack' has no attribute 'greeting'</code></p>
+<p>I don't know exactly why, but this may be same as <code>urllib</code> versus <code>urllib.request</code>.</p>
+<p>In any case, we have successfully build an original package locally on Python.</p>
+<h2 id="edit-__init__.py">Edit <code>__init__.py</code></h2>
+<p>We can leave <code>__init__.py</code> file empty. The most important job that this file does is to tell python that the folder is a package. But it can do other jobs too.</p>
+<p>When a package is imported, <code>__init__.py</code> is run. To see this, let's add the following (meaningless) command to the file.</p>
+<p><em>__init__.py</em></p>
+<p><code>{python} print('I count ten:', end=' ') for i in range(1, 11):     print(i, end=' ') print()</code> This code just print numbers from 1 to 10. Then,</p>
+<p><code>{bash} $ python -c &quot;import testpack&quot; I count ten: 1 2 3 4 5 6 7 8 9 10</code></p>
+<p>As expected, numbers are printed when <code>testpack</code> package is imported. Note this happens only for the first import. The script is not run for the second import.</p>
+<pre><code>$ python -c &quot;import testpack; import testpack&quot;
+I count ten: 1 2 3 4 5 6 7 8 9 10</code></pre>
+<p>Of course, we can let the file do more useful things than printing numbers. An important application is to associate functions directly to the package. Currently, our <code>say_hello</code> function is located at <code>testpack.greeting.say_hello</code>. It could be better in some cases if the function is directly under the package name. We can do this using <code>__init__.py</code>.</p>
+<p>Edit <code>__init__.py</code> as follows:</p>
+<p><em>__init__.py</em></p>
+<p><code>{python} from .greeting import say_hello</code></p>
+<p>This says, when <code>testpack</code> is imported, the function <code>say_hello</code> is fetched to directly under <code>testpack</code> namespace (I am not sure if this terminology is correct, though).</p>
+<p>We can do the following now:</p>
+<pre><code>$ python -c &quot;import testpack; testpack.say_hello()&quot;
+Hello!</code></pre>
+<p>I find this quite useful, particularly to fetch package's core functionalities (functions or classes) directly under the package.</p>
+<h2 id="dependencies">Dependencies</h2>
