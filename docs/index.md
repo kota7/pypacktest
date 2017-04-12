@@ -153,6 +153,11 @@ Hello!
 ```
 
 I find this quite useful, particularly to fetch package's core functionalities (functions or classes) directly under the package.
+For example (if you have `pandas` package installed), we can see that `pandas.Series` is actually located deep inside the package tree.
 
+```
+$ python -c "import pandas; x = pandas.Series([1,2,3]); print(type(x))"
+<class 'pandas.core.series.Series'>
+```
 
 ## Dependencies
