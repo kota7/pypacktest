@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
 
-
-
-def greeting():
-    """
-    Say hello
-    """
+def say_hello():
     print("Hello!")    
 
 
