@@ -8,8 +8,11 @@ setup(
     packages=find_packages(),
     
     install_requires=[ 
-        "numpy>=1,<=1.11"
-    ]
+        "numpy"
+    ],
+    package_data={
+        'testpack': ['wilde.txt', 'magic_square/*.npy']
+    }
 )
 
 

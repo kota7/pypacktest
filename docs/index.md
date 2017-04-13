@@ -188,7 +188,7 @@ setup(
 )
 ```
 
-Let's make a function that uses `numpy`.  
+Let's make a function that uses `numpy`.
 Add another script file (module) named "math.py" to the `testpack/` folder.
 
 *math.py*
@@ -225,8 +225,7 @@ $ python -c "import testpack.math; print(testpack.math.sumproduct([1,2,3], [4,5,
 
 As expected, we obtain `32 (=1*4 + 2*5 + 3*6)`.
 
-If the package depends specific versions of other packages, say numpy v.1 or later, then we can be more specific in the `setup.py` file like:
-`numpy>=1` or `numpy>=1.1,<1.5`
+If the package depends on specific versions of other packages, say numpy v.1 or later, then we can be more specific in the `setup.py` file like: `numpy>=1`.
 
 
 ## Specify Dependencies not Available on PyPI
@@ -235,7 +234,160 @@ TBA
 
 ## Include and Use Data Files
 
-TBA
+We may want to include data files within our package.  To do so, we simply locate files somewhere in the package tree, and then indicate that we want to include them in the package in the `setup.py`.  If we omit that, then `pip` will ignore files not with `.py` extention.
+
+Let us start with a simple example.  Let's add a text file in the `testpack/`.  
+
+*wilde.txt*
+```
+Life is too important to be taken seriously.
+```
+
+Our folder structure is now:
+```
+pypacktest/
+    setup.py
+    testpack/
+        __init__.py
+        greeting.py
+        math.py
+        wilde.txt
+```
+
+Edit `setup.py` file as below:
+
+*setup.py*
+```{pyton}
+# -*- coding: utf-8 -*-
+
+from setuptools import setup, find_packages
+
+setup(
+    name='testpack',
+    version='0.1',
+    packages=find_packages(),
+
+    install_requires=[
+        "numpy"
+    ],
+    package_data={
+        'testpack': ['wilde.txt']
+    }
+)
+```
+
+`package_data` option is a dictionary that maps from package names to a set of data files.  This particular example states that `testpack/` package includes the file `wilde.txt`.
+The reason why we specify the package name that include the file is because a package may be a bundle of several packages (Recall that all folders with `__init__.py` are packages).
+
+To see how we can use the included files, let's extend our `greeting.py` module as below:
+
+```{python}
+# -*- coding: utf-8 -*-
+
+from pkg_resources import resource_string
+
+def say_hello():
+    print("Hello!")
+
+def give_quote():
+    x = resource_string(__name__, 'wilde.txt').decode().strip()
+    print(x)
+```
+We now have a new function `give_quote`.  In this function, we first read the `wilde.txt` file include in the package.  `resource_string` from `pkg_resources` reads the specified file and returns the contents of the file as binary string.  We then clean the string a bit and print it on the console.
+We specify which package the file `wilde.txt` belong to, by providing `__name__` as the first argument, which equals `testpack.greeting` when the module is imported.
+
+Run `pip install -U .` and run:
+```
+$ python -c "from testpack.greeting import give_quote; give_quote()"
+Life is too important to be taken seriously.
+```
+As expected, the contents of the text file has been printed.
+
+
+### Binary Files
+
+Our data files may be binary format.  In this case, `resource_string` is inappropriate since it is designed to return the contents as strings.  We will see how we to handle binary files with the following example.
+Create a folder `magic_square/` in the `testpack/` folder.  Move to the `magic_square/` folder and run the following command:
+
+```
+$ python -c "from numpy import *; x = array([[8,1,6], [3,5,7], [4,9,2]]); save('3.npy', x); y = array([[1,2,15,16], [13,14,3,4], [12,7,10,5], [8,11,6,9]]); save('4.npy', y)"
+```
+This command creates 3x3 and 4x4 [magic squares](https://en.wikipedia.org/wiki/Magic_square) and save them as binary files of `.npy` format.
+
+We now have the following folder structure:
+```
+pypacktest/
+    setup.py
+    testpack/
+        __init__.py
+        greeting.py
+        math.py
+        wilde.txt
+        magic_square/
+            3.npy
+            4.npy
+```
+
+Edit `setup.py` as below so we include the added files:
+
+*setup.py*
+```{python}
+# -*- coding: utf-8 -*-
+
+from setuptools import setup, find_packages
+
+setup(
+    name='testpack',
+    version='0.1',
+    packages=find_packages(),
+
+    install_requires=[ 
+        "numpy"
+    ],
+    package_data={
+        'testpack': ['wilde.txt', 'magic_square/*.npy']
+    }
+)
+```
+
+And add a function that uses the new files in the `math.py` module:
+
+*math.py*
+```
+# -*- coding: utf-8 -*-
+
+import numpy as np
+from pkg_resources import resource_stream
+
+
+def sumproduct(x, y):
+    return np.dot(np.array(x), np.array(y))
+
+
+def magic_square(n):
+    if n in [3, 4]:
+        x = np.load(resource_stream(__name__, 'magic_square/%d.npy' % n))
+        return x
+    else:
+        print('"n" must be 3 or 4')
+```
+The new function `magic_square` reads the `.npy` file and return the array if the argument `n` is 3 or 4.
+Note that we use the `resource_stream` function.  This function returns a file-like object to read the file, which we can pass to the appropriate reader function.
+
+Run `pip install -U .` and run:
+
+```
+$ python -c "from testpack.math import magic_square; print(magic_square(3)); print(magic_square(4)); magic_square(5)"
+[[8 1 6]
+ [3 5 7]
+ [4 9 2]]
+[[ 1  2 15 16]
+ [13 14  3  4]
+ [12  7 10  5]
+ [ 8 11  6  9]]
+"n" must be 3 or 4
+```
+As exprected, we obtain magic squares for `n=3` and `n=4`, and a message for `n=5`.
 
 
 ## Include Command Line Tool
