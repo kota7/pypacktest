@@ -301,7 +301,7 @@ Run `pip install -U .` and run:
 $ python -c "from testpack.greeting import give_quote; give_quote()"
 Life is too important to be taken seriously.
 ```
-As expected, the contents of the text file has been printed.
+As expected, the contents of the text file have been printed.
 
 
 ### Binary Files
