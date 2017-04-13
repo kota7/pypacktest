@@ -225,6 +225,8 @@ $ python -c "import testpack.math; print(testpack.math.sumproduct([1,2,3], [4,5,
 
 As expected, we obtain `32 (=1*4 + 2*5 + 3*6)`.
 
+If the package depends specific versions of other packages, say numpy v.1 or later, then we can be more specific in the `setup.py` file like:
+`numpy>=1` or `numpy>=1.1,<1.5`
 
 
 ## Specify Dependencies not Available on PyPI

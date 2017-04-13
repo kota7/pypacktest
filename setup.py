@@ -8,7 +8,7 @@ setup(
     packages=find_packages(),
     
     install_requires=[ 
-        "numpy"
+        "numpy>=1,<=1.11"
     ]
 )
 
