@@ -165,13 +165,16 @@ $ python -c "import pandas; x = pandas.Series([1,2,3]); print(type(x))"
 
 TBA
 
+## Specify Dependencies not Available on PyPI
+
+TBA
 
 ## Include and Use Data Files
 
 TBA
 
 
-## Include Commandline Tool
+## Include Command Line Tool
 
 TBA
 
