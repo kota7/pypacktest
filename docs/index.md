@@ -18,7 +18,7 @@ pypacktest/
 ```
 
 Surprisingly, this is already a package!  
-If we write appropriate codes in `setup.py`, then we are ready to install this using `pip` command.
+If we write appropriate codes in `setup.py`, then we can install this using `pip` command.
 
 And here is the minimal `setup.py`.
 
@@ -37,11 +37,11 @@ setup(
 ```
 
 First, we import `setup` function from `setuptools` module. 
-`setup` function does most of the job for putting together packages provided that we give a appropriate scripts.
-`find_packages` function, which also comes from `setuptools` module, is a helpful function that finds package folder under the directory tree.  In this application, the function detects `testpack/` folder since it is the only folder that has `__init__.py` (As a rule, folders with `__init__.py` file are regarded as a package.)
-Hence, we can also write `packages=["testpack"]`.  If we have a lot of packages under a same folder, then `find_packages` function reduces our writing.
+`setup` function does most of the job for us; it puts together packages provided that we give an appropriate scripts.
+`find_packages` function, which also comes from `setuptools` module, is a helpful function that finds package folders under the directory tree.  In this application, the function detects `testpack/` folder since it is the only folder that has `__init__.py` (As a rule, folders with `__init__.py` file are regarded as a package.)
+Hence, we can also write `packages=["testpack"]`.  If we have a lot of packages within the tree, then `find_packages` function reduces our writing.
 
-Now let's take a look our only module, `greeting.py`.
+Now let's take a look at our only module, `greeting.py`.
 
 *greeting.py*
 
@@ -52,23 +52,23 @@ def say_hello():
     print("Hello!")
 ```
 
-So, `greeting` module has only one function called `say_hello`, which prints message "Hello!" on the console.
+So, `greeting` module has only one function named `say_hello`, which prints a message "Hello!" on the console.
 
-Finally, leave `__init__.py` file empty.
+Finally, `__init__.py` file is an empty text file.
 
 
-Okay, now we are ready to install this package to the python.
+Okay, now we are ready to install this package to python.
 At the `testpack/` folder, run the following command:
 
 ```{bash}
 $ pip install -U .
 ```
 
-`.` indicates that the current folder is the package to install.  You can also move one folder up and run `pip install -U ./pypacktest`.
+`.` indicates that the package to install is located at the current folder.  You can also move one folder up and run `pip install -U ./pypacktest`.
 
-The option `-U` forces to upgrade the package, whether or not you already have the latest version.  This is useful for our experiments since we make slight changes in our source code and folders and see differences resulted from them.  If we omit `-U` option, then `pip` will skip installation saying "Requirement already satisfied".
+The option `-U` forces to upgrade the package, whether or not you already have the latest version.  This is useful for our experiments since we make slight changes in our source code and see differences resulted from them.  If we omit `-U` option, then `pip` will skip installation saying "Requirement already satisfied".
 
-If the above command runs successfully, then `testpack` should already installed in python.  To confirm this, run:
+If the above command runs successfully, then `testpack` should already be installed in python.  To confirm this, run:
 
 ```{bash}
 $ pip list --format columns
@@ -107,10 +107,10 @@ In any case, we have successfully build an original package locally on Python.
 
 ## Edit `__init__.py`
 
-We can leave `__init__.py` file empty.  The most important job that this file does is to tell python that the folder is a package.
+We can leave `__init__.py` file empty.  The most important job of this file is to tell python that the folder is a package.
 But it can do other jobs too.
 
-When a package is imported, `__init__.py` is run. To see this, let's add the following (meaningless) command to the file.
+When a package is imported, `__init__.py` is run. To see this, let's edit the file as follows.
 
 *\_\_init\_\_.py*
 
@@ -120,21 +120,22 @@ for i in range(1, 11):
     print(i, end=' ')
 print()
 ```
-This code just print numbers from 1 to 10.
-Then,
+This code prints numbers from 1 to 10.
+Run `pip install -U .` and then,
 
 ```{bash}
 $ python -c "import testpack"
 I count ten: 1 2 3 4 5 6 7 8 9 10
 ```
+Note that you should run this somewhere other than `pypacktest/`.  If you run this at `pypacktest/`, then python would import the local folder instead of the installed package.
 
-As expected, numbers are printed when `testpack` package is imported.  Note this happens only for the first import.  The script is not run for the second import.
+As expected, numbers are printed when `testpack` package is imported.  Note this happens only for once.  The script is not run for the second import.
 ```
 $ python -c "import testpack; import testpack"
 I count ten: 1 2 3 4 5 6 7 8 9 10
 ```
 
-Of course, we can let the file do more useful things than printing numbers.  An important application is to associate functions directly to the package.  Currently, our `say_hello` function is accessed by `testpack.greeting.say_hello`.  It could be better in some cases if the function is directly under the package name.  We can do this using `__init__.py`.
+Of course, we can let the file do more useful things than printing numbers.  An important application is to associate functions directly to the package.  Currently, our `say_hello` function is accessed by `testpack.greeting.say_hello`.  This is a lot of writing.  It could be better in users can use the function by `testpack.say_hello`.  We can do this using `__init__.py`.
 
 Edit `__init__.py` as follows:
 
@@ -146,13 +147,13 @@ from .greeting import say_hello
 
 This says, when `testpack` is imported, the function `say_hello` is fetched to directly under `testpack` namespace (I am not sure if this terminology is correct, though).
 
-We can do the following now:
+We can do the following now (don't forget to run `pip install -U .`):
 ```
 $ python -c "import testpack; testpack.say_hello()"
 Hello!
 ```
 
-I find this quite useful, particularly to fetch package's core functionalities (functions or classes) directly under the package.
+I find this quite useful, particularly to fetch package's core functionalities (functions or classes) directly under the package name.
 For example (if you have `pandas` package installed), we can see that `pandas.Series` is actually located deep inside the package tree.
 
 ```
@@ -160,4 +161,37 @@ $ python -c "import pandas; x = pandas.Series([1,2,3]); print(type(x))"
 <class 'pandas.core.series.Series'>
 ```
 
-## Dependencies
+## Specify Dependencies
+
+TBA
+
+
+## Include and Use Data Files
+
+TBA
+
+
+## Include Commandline Tool
+
+TBA
+
+## Publish on Github
+
+TBA
+
+## Unit Test
+
+TBA 
+
+## Test with Various Versions
+
+TBA
+
+## Register on PyPI
+
+TBA
+
+## Write Documentation
+
+TBA
+
