@@ -163,7 +163,69 @@ $ python -c "import pandas; x = pandas.Series([1,2,3]); print(type(x))"
 
 ## Specify Dependencies
 
-TBA
+Unless you are a super programmer who can write everything by your own, your package will rely on other people's works.
+If this case, we should specify packages on which your package depends on in the `setup.py` file.
+If we do so, `pip` will install them (if they are not installed yet) before installing our package.  
+
+The following example shows a setup file for a package that depends on `numpy`.
+The dependencies are given as a string list to `install_requires` field.
+
+*setup.py*
+
+```
+# -*- coding: utf-8 -*-
+
+from setuptools import setup, find_packages
+
+setup(
+    name='testpack',
+    version='0.1',
+    packages=find_packages(),
+    
+    install_requires=[ 
+        "numpy"
+    ]
+)
+```
+
+Let's make a function that uses `numpy`.  
+Add another script file (module) named "math.py" to the `testpack/` folder.
+
+*math.py*
+
+```
+# -*- coding: utf-8 -*-
+
+import numpy as np
+
+def sumproduct(x, y):
+    return np.dot(np.array(x), np.array(y))
+```
+
+`sumproduct` function computes the weighted sum of two vectors `x` and `y`. 
+
+As a result, our folder structure is as below.
+
+```
+pypacktest/
+    setup.py
+    testpack/
+        __init__.py
+        greeting.py
+        math.py
+```
+
+
+Run `pip install -U .`, and run the following command:
+
+```
+$ python -c "import testpack.math; print(testpack.math.sumproduct([1,2,3], [4,5,6]))"
+32
+```
+
+As expected, we obtain `32 (=1*4 + 2*5 + 3*6)`.
+
+
 
 ## Specify Dependencies not Available on PyPI
 
