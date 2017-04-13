@@ -234,9 +234,9 @@ TBA
 
 ## Include and Use Data Files
 
-We may want to include data files within our package.  To do so, we simply locate files somewhere in the package tree, and then indicate that we want to include them in the package in the `setup.py`.  If we omit that, then `pip` will ignore files not with `.py` extention.
+We may want to include data files within our package.  To do so, we simply locate files somewhere in the package tree, and then express our intention to include them in the `setup.py`.  If we omit that, then `pip` would ignore files not with `.py` extention.
 
-Let us start with a simple example.  Let's add a text file in the `testpack/`.  
+Let us start with a simple example.  Add a text file as below in the `testpack/` folder.
 
 *wilde.txt*
 ```
@@ -294,7 +294,7 @@ def give_quote():
     print(x)
 ```
 We now have a new function `give_quote`.  In this function, we first read the `wilde.txt` file include in the package.  `resource_string` from `pkg_resources` reads the specified file and returns the contents of the file as binary string.  We then clean the string a bit and print it on the console.
-We specify which package the file `wilde.txt` belong to, by providing `__name__` as the first argument, which equals `testpack.greeting` when the module is imported.
+We specify which package the file `wilde.txt` belongs to by providing `__name__` as the first argument, which equals `testpack.greeting` when the module is imported.
 
 Run `pip install -U .` and run:
 ```
@@ -306,7 +306,7 @@ As expected, the contents of the text file has been printed.
 
 ### Binary Files
 
-Our data files may be binary format.  In this case, `resource_string` is inappropriate since it is designed to return the contents as strings.  We will see how we to handle binary files with the following example.
+Our data files may be of binary format.  If so, `resource_string` is inappropriate since it is designed to return the contents as a string.  We will see how to handle binary files with the following example.
 Create a folder `magic_square/` in the `testpack/` folder.  Move to the `magic_square/` folder and run the following command:
 
 ```
