@@ -164,8 +164,8 @@ $ python -c "import pandas; x = pandas.Series([1,2,3]); print(type(x))"
 ## Specify Dependencies
 
 Unless you are a super programmer who can write everything by your own, your package will rely on other people's works.
-If this case, we should specify packages on which your package depends on in the `setup.py` file.
-If we do so, `pip` will install them (if they are not installed yet) before installing our package.  
+If this is the case, we should specify packages on which your package depends on in the `setup.py` file.
+If we do so, `pip` will install them automatically (if they are not installed yet) before installing our package.  
 
 The following example shows a setup file for a package that depends on `numpy`.
 The dependencies are given as a string list to `install_requires` field.
