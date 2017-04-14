@@ -6,7 +6,7 @@ setup(
     name='testpack',
     version='0.1',
     packages=find_packages(),
-
+    py_modules=['commandline'],
     install_requires=[
         "numpy"
     ],

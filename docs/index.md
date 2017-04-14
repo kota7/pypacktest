@@ -469,6 +469,7 @@ An alternative way of including executable files in python packages is to specif
 
 In the `testpack/` folder, add a file named `command.py` as below:
 
+*command.py*
 ```python
 # -*- coding: utf-8 -*-
 
@@ -542,14 +543,14 @@ pypacktest/
 
 ```bash
 $ magic-square 3
-  8   1   6 
-  3   5   7 
-  4   9   2 
+  8   1   6
+  3   5   7
+  4   9   2
 $ magic-square 4
-  1   2  15  16 
- 13  14   3   4 
- 12   7  10   5 
-  8  11   6   9 
+  1   2  15  16
+ 13  14   3   4
+ 12   7  10   5
+  8  11   6   9
 $ magic-square 5
 currently only n = 3 or 4 is supported
 $ magic-square a
@@ -559,6 +560,11 @@ magic-square: error: argument n: invalid int value: 'a'
 
 Notice that we only wrote a function, and the executable file has been created during the installation of the package.
 If you are curious and want to see what kind of file has been created, run `which magic-square` on bash terminal or `where magic-square` on Windows command prompt.  This will tell you the location of the created executable file.  You can take a look at the content of it since it is a python script.
+
+### Which is better?
+
+We have seen two approaches for adding executable command line tools to our packages.  So which is better?
+As far as I notice in the developers' discussion, people are generally shifting towards the second approach (*i.e.* using `entry_point`).  Hence, unless you have a strong preference for the `script` approach, it seems employing `entry_point` approach is the safer choice.  See *e.g.*, discussions on [stackoverflow](http://stackoverflow.com/questions/18787036/difference-between-entry-points-console-scripts-and-scripts-in-setup-py) and this [documentation](https://packaging.python.org/distributing/#scripts).
 
 
 ## Publish on Github
