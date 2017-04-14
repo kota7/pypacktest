@@ -3,7 +3,7 @@
 from pkg_resources import resource_string
 
 def say_hello():
-    print("Hello!")    
+    print("Hello!")
 
 
 

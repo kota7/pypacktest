@@ -393,7 +393,173 @@ As exprected, we obtain magic squares for `n=3` and `n=4`, and a message for `n=
 
 ## Include Command Line Tool
 
-TBA
+Users of our Python packages can incorporate the functionalities in their own programs.  Some users may find coding troublesome even with the help of our packages.  Executable programs will provide additional usability to such people.
+
+We can attach our executable programs just by adding a few lines in the `setup.py` file.  We see two ways for doing this.  Both apporaches are valid.
+
+### Specify `scripts` field
+
+Let's write a program that uses our `give_quote` function to print a nice sentense on the console.  Make a folder `bin/` in the same directory as `setup.py` and make a file `oscar-wilde` as below.
+
+*oscar-wilde*
+```python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import testpack.greeting
+
+def main():
+    testpack.greeting.give_quote()
+
+main()
+```
+
+I added `#!/usr/bin/env python` in the first line.  This makes it clear that the script shall be run by python.  In this script, I define `main` function in the middle, and call it at the end.  Although this is not mandatory, it is a good practice when writing an executable python script to encapsulate the entire procedure in the main function.
+
+Our folder structure is as below now:
+
+```
+pypacktest/
+    setup.py
+    testpack/
+        __init__.py
+        greeting.py
+        math.py
+        wilde.txt
+        magic_square/
+            3.npy
+            4.npy
+    bin/
+        oscar-wilde
+```
+
+
+
+In the `setup.py`, we add `scripts` field as below, which points to the executable file locations.
+*setup.py*
+```python
+# -*- coding: utf-8 -*-
+
+from setuptools import setup, find_packages
+
+setup(
+    name='testpack',
+    version='0.1',
+    packages=find_packages(),
+
+    install_requires=[
+        "numpy"
+    ],
+    package_data={
+        'testpack': ['wilde.txt', 'magic_square/*.npy']
+    },
+    scripts=['bin/oscar-wilde']
+)
+```
+
+`pip install -U .`, and run:
+```bash
+$ oscar-wilde
+Life is too important to be taken seriously.
+```
+
+## Use `entry_points`
+
+An alternative way of including executable files in python packages is to specify `entry_points` field in the `setup.py`.  In this approach, we write a *function* instead of a script file.  Let's see.
+
+In the `testpack/` folder, add a file named `command.py` as below:
+
+```python
+# -*- coding: utf-8 -*-
+
+from argparse import ArgumentParser
+import testpack.math
+
+def magic_square():
+    parser = ArgumentParser(description='Return a magic square of size 3 or 4')
+    parser.add_argument('n', type=int, help='square size')
+    args = parser.parse_args()
+
+    if args.n in [3,4]:
+        x = testpack.math.magic_square(args.n)
+        for i in range(len(x)):
+            for j in range(len(x[i])):
+                print('%3d' % x[i,j], end=' ')
+            print('')
+    else:
+        print('currently only n = 3 or 4 is supported')
+        return
+```
+
+We define `magic_square` function in this module.  This is the same name as the one in `testpack.math` so we distinguish the two by the module names.
+We use `ArgumentParser` class from `argparse` package to handle user inputs.  See the [official documentation](https://docs.python.org/3.5/library/argparse.html) for more in depth about this class.
+In the `magic_square` function, we call `testpack.math.magic_square` to obtain an array of the desired size, and then print it on the console.
+
+To make this function to be invoked by a console command, edit the `setup.py` as follows:
+*setup.py*
+```python
+# -*- coding: utf-8 -*-
+
+from setuptools import setup, find_packages
+
+setup(
+    name='testpack',
+    version='0.1',
+    packages=find_packages(),
+
+    install_requires=[
+        "numpy"
+    ],
+    package_data={
+        'testpack': ['wilde.txt', 'magic_square/*.npy']
+    },
+    scripts=['bin/oscar-wilde'],
+    entry_points={
+        'console_scripts': ['magic-square=testpack.command:magic_square']
+    }
+)
+```
+As you can see, `entry_points` field is a dictionary.  `console_scripts` is the one we use to make executable script.  The grammar is `<command name>=<package and/or module>:<function name>`.
+
+Here is the current folder structure.
+```
+pypacktest/
+    setup.py
+    testpack/
+        __init__.py
+        greeting.py
+        math.py
+        command.py
+        wilde.txt
+        magic_square/
+            3.npy
+            4.npy
+    bin/
+        oscar-wilde
+```
+
+`pip install -U .`, and run the followings.  `magic-square` command shows the array if 3 or 4 is supplied.  It catches invalid input and gives an error, since we specified that the input shall be an integer.
+
+```bash
+$ magic-square 3
+  8   1   6 
+  3   5   7 
+  4   9   2 
+$ magic-square 4
+  1   2  15  16 
+ 13  14   3   4 
+ 12   7  10   5 
+  8  11   6   9 
+$ magic-square 5
+currently only n = 3 or 4 is supported
+$ magic-square a
+usage: magic-square [-h] n
+magic-square: error: argument n: invalid int value: 'a'
+```
+
+Notice that we only wrote a function, and the executable file has been created during the installation of the package.
+If you are curious and want to see what kind of file has been created, run `which magic-square` on bash terminal or `where magic-square` on Windows command prompt.  This will tell you the location of the created executable file.  You can take a look at the content of it since it is a python script.
+
 
 ## Publish on Github
 
