@@ -45,7 +45,7 @@ Now let's take a look at our only module, `greeting.py`.
 
 *greeting.py*
 
-```(python}
+```python
 # -*- coding: utf-8 -*-
 
 def say_hello():
@@ -60,7 +60,7 @@ Finally, `__init__.py` file is an empty text file.
 Okay, now we are ready to install this package to python.
 At the `testpack/` folder, run the following command:
 
-```{bash}
+```bash
 $ pip install -U .
 ```
 
@@ -70,7 +70,7 @@ The option `-U` forces to upgrade the package, whether or not you already have t
 
 If the above command runs successfully, then `testpack` should already be installed in python.  To confirm this, run:
 
-```{bash}
+```bash
 $ pip list --format columns
 ```
 
@@ -87,13 +87,13 @@ wheel      0.29.0
 
 We can now use `testpack` package and functions therein like other packages.  One caution is that we need to import `testpack.greeting`, not just `testpack`.  To see this, run the followings on the terminal.  Note that the option `-c` lets you type in python commands without starting a python session.
 
-```{bash}
+```bash
 $ python -c "import testpack.greeting; testpack.greeting.say_hello()"
 Hello!
 ```
 The message "Hello!" is printed as desired.  However,
 
-```{bash}
+```bash
 $ python -c "import testpack; testpack.greeting.say_hello()"
 Traceback (most recent call last):
   File "<string>", line 1, in <module>
@@ -114,7 +114,7 @@ When a package is imported, `__init__.py` is run. To see this, let's edit the fi
 
 *\_\_init\_\_.py*
 
-```{python}
+```python
 print('I count ten:', end=' ')
 for i in range(1, 11):
     print(i, end=' ')
@@ -123,14 +123,15 @@ print()
 This code prints numbers from 1 to 10.
 Run `pip install -U .` and then,
 
-```{bash}
+```bash
 $ python -c "import testpack"
 I count ten: 1 2 3 4 5 6 7 8 9 10
 ```
 Note that you should run this somewhere other than `pypacktest/`.  If you run this at `pypacktest/`, then python would import the local folder instead of the installed package.
 
 As expected, numbers are printed when `testpack` package is imported.  Note this happens only for once.  The script is not run for the second import.
-```
+
+```bash
 $ python -c "import testpack; import testpack"
 I count ten: 1 2 3 4 5 6 7 8 9 10
 ```
@@ -141,14 +142,14 @@ Edit `__init__.py` as follows:
 
 *\_\_init\_\_.py*
 
-```{python}
+```python
 from .greeting import say_hello
 ```
 
 This says, when `testpack` is imported, the function `say_hello` is fetched to directly under `testpack` namespace (I am not sure if this terminology is correct, though).
 
 We can do the following now (don't forget to run `pip install -U .`):
-```
+```bash
 $ python -c "import testpack; testpack.say_hello()"
 Hello!
 ```
@@ -156,7 +157,7 @@ Hello!
 I find this quite useful, particularly to fetch package's core functionalities (functions or classes) directly under the package name.
 For example (if you have `pandas` package installed), we can see that `pandas.Series` is actually located deep inside the package tree.
 
-```
+```bash
 $ python -c "import pandas; x = pandas.Series([1,2,3]); print(type(x))"
 <class 'pandas.core.series.Series'>
 ```
@@ -175,7 +176,7 @@ The dependencies are given as a string list to `install_requires` field.
 
 *setup.py*
 
-```
+```python
 # -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
@@ -196,7 +197,7 @@ Add another script file (module) named "math.py" to the `testpack/` folder.
 
 *math.py*
 
-```
+```python
 # -*- coding: utf-8 -*-
 
 import numpy as np
@@ -221,7 +222,7 @@ pypacktest/
 
 Run `pip install -U .`, and run the following command:
 
-```
+```bash
 $ python -c "import testpack.math; print(testpack.math.sumproduct([1,2,3], [4,5,6]))"
 32
 ```
@@ -257,7 +258,7 @@ pypacktest/
 Edit `setup.py` file as below:
 
 *setup.py*
-```{pyton}
+```pyton
 # -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
@@ -281,7 +282,7 @@ The reason why we specify the package name that include the file is because a pa
 
 To see how we can use the included files, let's extend our `greeting.py` module as below:
 
-```{python}
+```python
 # -*- coding: utf-8 -*-
 
 from pkg_resources import resource_string
@@ -297,7 +298,7 @@ We now have a new function `give_quote`.  In this function, we first read the `w
 We specify which package the file `wilde.txt` belongs to by providing `__name__` as the first argument, which equals `testpack.greeting` when the module is imported.
 
 Run `pip install -U .` and run:
-```
+```bash
 $ python -c "from testpack.greeting import give_quote; give_quote()"
 Life is too important to be taken seriously.
 ```
@@ -309,7 +310,7 @@ As expected, the contents of the text file have been printed.
 Our data files may be of binary format.  If so, `resource_string` is inappropriate since it is designed to return the contents as a string.  We will see how to handle binary files with the following example.
 Create a folder `magic_square/` in the `testpack/` folder.  Move to the `magic_square/` folder and run the following command:
 
-```
+```bash
 $ python -c "from numpy import *; x = array([[8,1,6], [3,5,7], [4,9,2]]); save('3.npy', x); y = array([[1,2,15,16], [13,14,3,4], [12,7,10,5], [8,11,6,9]]); save('4.npy', y)"
 ```
 This command creates 3x3 and 4x4 [magic squares](https://en.wikipedia.org/wiki/Magic_square) and save them as binary files of `.npy` format.
@@ -331,7 +332,7 @@ pypacktest/
 Edit `setup.py` as below so we include the added files:
 
 *setup.py*
-```{python}
+```python
 # -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
@@ -353,7 +354,7 @@ setup(
 And add a function that uses the new files in the `math.py` module:
 
 *math.py*
-```
+```python
 # -*- coding: utf-8 -*-
 
 import numpy as np
@@ -376,7 +377,7 @@ Note that we use the `resource_stream` function.  This function returns a file-l
 
 Run `pip install -U .` and run:
 
-```
+```bash
 $ python -c "from testpack.math import magic_square; print(magic_square(3)); print(magic_square(4)); magic_square(5)"
 [[8 1 6]
  [3 5 7]
