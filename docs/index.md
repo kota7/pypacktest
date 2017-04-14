@@ -258,7 +258,7 @@ pypacktest/
 Edit `setup.py` file as below:
 
 *setup.py*
-```pyton
+```python
 # -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
