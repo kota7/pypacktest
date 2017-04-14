@@ -563,7 +563,18 @@ If you are curious and want to see what kind of file has been created, run `whic
 
 ## Publish on Github
 
-TBA
+So far we have been installing our package from local files.  Let's publish it online at [Github](https://github.com/) so that other people can install by `pip` command.  This document does not cover git and github.  If you are not familiary with them, you can easily learn from online resources.
+
+If you have successfully build your package already, then there is nothing special to do for our scripts.  Make a github account and put your `pypacktest` folder in one of your repository.  Then it is ready.
+
+My package is located at https://github.com/kota7/pypacktest.
+The install command will be
+```bash
+pip install git+https://github.com/kota7/pypacktest
+```
+
+Congraturations.  We have finally published our packages to people in the world.
+
 
 ## Specify Dependencies not Available on PyPI
 
