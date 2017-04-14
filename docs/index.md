@@ -167,6 +167,9 @@ Unless you are a super programmer who can write everything by your own, your pac
 If this is the case, we should specify packages on which your package depends on in the `setup.py` file.
 If we do so, `pip` will install them automatically (if they are not installed yet) before installing our package.  
 
+Note that this section covers dependencies on packages on PyPI.  
+Dependencies on packages not available on PyPI is covered in a later section.
+
 The following example shows a setup file for a package that depends on `numpy`.
 The dependencies are given as a string list to `install_requires` field.
 
@@ -228,9 +231,6 @@ As expected, we obtain `32 (=1*4 + 2*5 + 3*6)`.
 If the package depends on specific versions of other packages, say numpy v.1 or later, then we can be more specific in the `setup.py` file like: `numpy>=1`.
 
 
-## Specify Dependencies not Available on PyPI
-
-TBA
 
 ## Include and Use Data Files
 
@@ -397,6 +397,11 @@ TBA
 ## Publish on Github
 
 TBA
+
+## Specify Dependencies not Available on PyPI
+
+TBA
+
 
 ## Unit Test
 
