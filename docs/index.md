@@ -24,7 +24,7 @@ And here is the minimal `setup.py`.
 
 *setup.py*
 
-```{python}
+```python
 # -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
