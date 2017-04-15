@@ -11,7 +11,7 @@ setup(
     ],
     test_requires=[
         'pytests'
-    ]
+    ],
     package_data={
         'testpack': ['wilde.txt', 'magic_square/*.npy']
     },
