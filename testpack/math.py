@@ -10,7 +10,8 @@ def sumproduct(x, y):
 
 def magic_square(n):
     if n in [3, 4]:
-        x = np.load(resource_stream(__name__, 'magic_square/%d.npy' % n))
+        with resource_stream(__name__, 'magic_square/%d.npy' % n) as f:
+            x = np.load(f)
         return x
     else:
         print('"n" must be 3 or 4')

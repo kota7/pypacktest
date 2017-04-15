@@ -2,6 +2,7 @@
 
 from pkg_resources import resource_string
 
+
 def say_hello():
     print("Hello!")
 
@@ -10,4 +11,5 @@ def say_hello():
 def give_quote():
     x = resource_string(__name__, 'wilde.txt').decode().strip()
     print(x)
-   
+
+ 

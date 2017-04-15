@@ -564,7 +564,9 @@ If you are curious and want to see what kind of file has been created, run `whic
 ### Which is better?
 
 We have seen two approaches for adding executable command line tools to our packages.  So which is better?
-As far as I notice in the developers' discussion, people are generally shifting towards the second approach (*i.e.* using `entry_point`).  Hence, unless you have a strong preference for the `script` approach, it seems employing `entry_point` approach is the safer choice.  See *e.g.*, discussions on [stackoverflow](http://stackoverflow.com/questions/18787036/difference-between-entry-points-console-scripts-and-scripts-in-setup-py) and this [documentation](https://packaging.python.org/distributing/#scripts).
+As far as I notice in the developers' discussion, people are generally shifting towards the second approach (*i.e.* using `entry_point`).  Hence, unless you have a strong preference for the `script` approach, it seems employing `entry_point` approach is the safer choice.
+In this document, we will keep `bin/` folder for the purpose of demonstration.
+See *e.g.*, discussions on [stackoverflow](http://stackoverflow.com/questions/18787036/difference-between-entry-points-console-scripts-and-scripts-in-setup-py) and this [documentation](https://packaging.python.org/distributing/#scripts).
 
 
 ## Publish on Github
@@ -587,11 +589,225 @@ Congraturations.  We have finally published our packages to people in the world.
 TBA
 
 
-## Unit Test
+## Test Package
 
-TBA 
+Designing automoated tests is a fundamental part of package building.  A comprehensive set of tests would detect any broken functionalities caused by future development or possibly by revisions of the dependencies.
 
-## Test with Various Versions
+We will see how we can create testing frame work using `unittest` package, and also how we can incorporate that to package development with `pip` command.
+
+### Using `unittest`
+
+First, let's make `tests/` folder in `pypacktest/` folder and create a file `test_math.py`.
+
+*test_math.py*
+
+```python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import unittest
+import numpy as np
+
+from testpack.math import magic_square
+
+class TestMagic(unittest.TestCase):
+    def test_magic3(self):
+        x = magic_square(3)
+        # first, x must be 2-dim numpy array
+        self.assertIsInstance(x, np.ndarray)
+        self.assertEqual(len(x.shape), 2)
+        # and each size must be 3 
+        self.assertEqual(x.shape[0], 3)
+        self.assertEqual(x.shape[1], 3)
+
+        # as a magic square, row-sums, col-sums, diag-sums 
+        # must be all equal
+        all_sums = np.concatenate([
+            x.sum(axis=1), # row sums
+            x.sum(axis=0)  # col sums
+        ])
+        # diag sums
+        all_sums = np.append(all_sums, x.trace()) 
+        all_sums = np.append(all_sums, np.fliplr(x).trace()) 
+        self.assertEqual(np.unique(all_sums).size, 1) 
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+Here is a general structure of a test script.
+
+1. Define a class that inherits `unittest.TestCase`
+2. Define methods named `test_<something>`
+3. Write tests in the methods using `assert` methods.
+4. Add `unittest.main()` under the `if __name__ == '__main__'` clause.
+
+In the code above, we have only one test method, `test_magic3`, which tests the behavior of the `magic_square` function for `n=3` case.  More specifically it makes sure that the function returns a `numpy.ndarray` object of expected size, and the sums satisfies the magic square property.
+
+We are using `assertIsInstance` and `assertEqual` among many other methods.
+See [unittest documentation](https://docs.python.org/3/library/unittest.html#unittest.TestCase) for comprehensive description of `assert` methods.
+
+The current folder structure is as below:
+```
+pypacktest/
+    setup.py
+    testpack/
+        __init__.py
+        greeting.py
+        math.py
+        command.py
+        wilde.txt
+        magic_square/
+            3.npy
+            4.npy
+    bin/
+        oscar-wilde
+    tests/
+        test_math.py
+```
+
+Now run:
+```bash
+$ python tests/test_math.py -v
+```
+`-v` option is the flag for displaying detailed process of testing.
+If you have copied all scripts so far, you may be seeing a warning like this:
+
+```bash
+ ResourceWarning: unclosed file <_io.BufferedReader name='testpack/magic_square/3.npy'>
+  x = np.load(resource_stream(__name__, 'magic_square/%d.npy' % n))
+```
+This has nothing to do with the tests we designed.  It tells us that our code may have forgotten to close the magic square data file.  We can fix this by editing the relevant part of our code so that files are closed with no doubt.
+Concretely, we can use `with` clause as below.
+
+*math.py*
+```python
+# -*- coding: utf-8 -*-
+
+import numpy as np
+from pkg_resources import resource_stream
+
+def sumproduct(x, y):
+    return np.dot(np.array(x), np.array(y))
+
+def magic_square(n):
+    if n in [3, 4]:
+        with resource_stream(__name__, 'magic_square/%d.npy' % n) as f:
+            x = np.load(f)
+        return x
+    else:
+        print('"n" must be 3 or 4')
+```
+
+This was a bit of digression but it acttually is a benefit of unit testing; It helps us to identify problems that we never imagined.
+With the revision above, and `pip install -U .` for update, run the test script again.
+
+```bash
+$ python tests/test_math.py -v
+test_magic3 (__main__.TestMagic) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.007s
+
+OK
+```
+
+We have confirmed that the magic square of size 3 works well.
+
+Let's add more tests.  While we can write another function for `n=4` case, we may better to write more generalizable script, just in case we may revise the function to cover up to `n=100` in the future.
+The code below is the revised version of the `test_math.py`.  In this code, we defined `magic_helper` method, which tests the validity of `magic_square` function for a generic `n`.  And we define `test_...` methods for various `n`.
+Notice that the `magic_helper` function is ignored by the testing procedure.  This is because `unittest` recognizes methods named like `test_...` as test.
+*test_math.py*
+```python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import unittest
+import numpy as np
+
+from testpack.math import magic_square
+
+class TestMagic(unittest.TestCase):
+
+    def magic_helper(self, n):
+        x = magic_square(n)
+        if not (n in [3, 4]):
+            # x should be None, no further test
+            self.assertIsNone(x)
+            return
+        
+        # first, x must be 2-dim numpy array
+        self.assertIsInstance(x, np.ndarray)
+        self.assertEqual(len(x.shape), 2)
+        # and each size must be n 
+        self.assertEqual(x.shape[0], n)
+        self.assertEqual(x.shape[1], n)
+
+        # as a magic square, row-sums, col-sums, diag-sums 
+        # must be all equal
+        all_sums = np.concatenate([
+            x.sum(axis=1), # row sums
+            x.sum(axis=0)  # col sums
+        ])
+        # diag sums
+        all_sums = np.append(all_sums, x.trace()) 
+        all_sums = np.append(all_sums, np.fliplr(x).trace()) 
+        self.assertEqual(np.unique(all_sums).size, 1) 
+    
+    def test_magic3(self):
+        self.magic_helper(3)
+
+    def test_magic4(self):
+        self.magic_helper(4)
+
+    def test_magic5(self):
+        self.magic_helper(5)
+    
+    def test_magic_others(self):
+        for n in range(0,3):
+            self.magic_helper(n)
+        for n in range(6,11):
+            self.magic_helper(n)
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+Run the test to obtain:
+```bash
+$ python tests/test_math.py -v
+test_magic3 (__main__.TestMagic) ... ok
+test_magic4 (__main__.TestMagic) ... ok
+test_magic5 (__main__.TestMagic) ... "n" must be 3 or 4
+ok
+test_magic_all (__main__.TestMagic) ... "n" must be 3 or 4
+"n" must be 3 or 4
+"n" must be 3 or 4
+"n" must be 3 or 4
+"n" must be 3 or 4
+"n" must be 3 or 4
+"n" must be 3 or 4
+"n" must be 3 or 4
+ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.008s
+
+OK
+```
+
+
+### Incorporate Unit Test to Package Building
+
+So far we have written a testing script and successfully run it to confirm that one of our function is working as it should.  In order to construct a testting framework for our package, we will extend it in two ways.
+
+1. Write many test scripts and run them all at once
+2. Conduct test *before* building the package
+
+The purpose of the first extention is obvious.  A package may have more than one functionality, each of which needs to be tested.  The second extention may not look so important but is logical.  Once we install a new version of the package, the
+
+
+## Test with Various Python Versions
 
 TBA
 
