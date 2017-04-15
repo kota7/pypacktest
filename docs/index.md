@@ -676,7 +676,7 @@ $ python tests/test_math.py -v
 If you have copied all scripts so far, you may be seeing a warning like this:
 
 ```bash
- ResourceWarning: unclosed file <_io.BufferedReader name='testpack/magic_square/3.npy'>
+ ResourceWarning: unclosed file <_io.BufferedReader name='/**/**/**/**/testpack/magic_square/3.npy'>
   x = np.load(resource_stream(__name__, 'magic_square/%d.npy' % n))
 ```
 This has nothing to do with the tests we designed.  It tells us that our code may have forgotten to close the magic square data file.  We can fix this by editing the relevant part of our code so that files are closed with no doubt.
@@ -930,6 +930,31 @@ OK
 
 You can see that both test scripts have been executed as desired.
 
+
+### `pytest` as an Alternative Test Execution
+
+As an easier alternative, we can also use `pytest` package (you can download it by `pip install pytest`).
+At the `pypacktest/` folder, simply run:
+```bash
+$ pytest -v tests/
+============================= test session starts ==============================
+platform linux -- Python 3.5.2, pytest-3.0.7, py-1.4.33, pluggy-0.4.0 -- /**/**/**/**/**/**/python
+cachedir: .cache
+rootdir: /**/**/**/pypacktest, inifile:
+collected 6 items 
+
+tests/test_greeting.py::TestHello::test_hello PASSED
+tests/test_greeting.py::TestQuote::test_quote PASSED
+tests/test_math.py::TestMagic::test_magic3 PASSED
+tests/test_math.py::TestMagic::test_magic4 PASSED
+tests/test_math.py::TestMagic::test_magic5 PASSED
+tests/test_math.py::TestMagic::test_magic_others PASSED
+
+=========================== 6 passed in 0.16 seconds ===========================
+```
+
+`pytest` script collects test items under the `test/` folder and execute them all.  Notice that we do not even need to specify `test_suite` field in the `
+setup.py` file.  This option would be an easier but still robust alternative.
 
 ## Test with Various Python Versions
 
