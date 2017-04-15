@@ -806,7 +806,129 @@ So far we have written a testing script and successfully run it to confirm that 
 1. Write many test scripts and run them all at once
 2. Conduct test *before* building the package
 
-The purpose of the first extention is obvious.  A package may have more than one functionality, each of which needs to be tested.  The second extention may not look so important but is logical.  Once we install a new version of the package, the
+The purpose of the first extention is obvious.  A package may have more than one functionality, each of which needs to be tested.  The second extention may not look so important but it is a logical order; We would like to install a new version of the package only after it passes all tests.
+
+Both features are supported by the `setuptools` framework.  Let's take a look.
+
+First, add another test script to mimic a real development process, where we have many tests.  We name it `test_greeting.py` and let it test the functions in the `greeting` module.
+
+The test structure is same as the one for `math` module.  Notice that we expect the functions to return nothing, hence we use `assertIsNone` method.
+*test_greeting.py*
+```python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import unittest
+from testpack.greeting import give_quote, say_hello
+
+
+class TestHello(unittest.TestCase):
+    
+    def test_hello(self):
+        self.assertIsNone(say_hello())
+
+class TestQuote(unittest.TestCase):
+    
+    def test_quote(self):
+        self.assertIsNone(give_quote())
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+We add an empty `__init__.py` file in the `tests/` folder.  By doing so, this folder is regarded as a package.  This is because there is a rule that we need to supply tests in the `setup` function either by a function, class, module or package.  Among them, I believe supplying a package is the easiest option.
+
+We edit the `setup.py` file as below.
+There are two changes.  First, we excluded `'tests'` from the the package list, since `tests` package here is for our development and not to be supplied to users.  Second, we specify `test_suite` field as `'tests'`, which tells that our test is found in the `tests` package.
+
+*setup.py*
+```python
+# -*- coding: utf-8 -*-
+
+from setuptools import setup, find_packages
+
+setup(
+    name='testpack',
+    version='0.1',
+    packages=find_packages(exclude=['tests']),
+    install_requires=[
+        'numpy'
+    ],
+    package_data={
+        'testpack': ['wilde.txt', 'magic_square/*.npy']
+    },
+    scripts=['bin/oscar-wilde'],
+    entry_points={
+        'console_scripts': ['magic-square=testpack.command:magic_square']
+    },
+    test_suite='tests'
+)
+```
+
+As a result, our folder structure becomes:
+
+```
+pypacktest/
+    setup.py
+    testpack/
+        __init__.py
+        greeting.py
+        math.py
+        command.py
+        wilde.txt
+        magic_square/
+            3.npy
+            4.npy
+    bin/
+        oscar-wilde
+    tests/
+        __init__.py
+        test_greeting.py
+        test_math.py
+```
+
+Finally, at the `pypacktest/` folder, run:
+
+```bash
+$ python setup.py test
+```
+`test` is a keyword that indicate we would like to test the package *without* installing it.  If everything works well, you should see the results like below.
+```bash
+running test
+running egg_info
+writing entry points to testpack.egg-info/entry_points.txt
+writing requirements to testpack.egg-info/requires.txt
+writing testpack.egg-info/PKG-INFO
+writing dependency_links to testpack.egg-info/dependency_links.txt
+writing top-level names to testpack.egg-info/top_level.txt
+reading manifest file 'testpack.egg-info/SOURCES.txt'
+writing manifest file 'testpack.egg-info/SOURCES.txt'
+running build_ext
+test_magic3 (tests.test_math.TestMagic) ... ok
+test_magic4 (tests.test_math.TestMagic) ... ok
+test_magic5 (tests.test_math.TestMagic) ... "n" must be 3 or 4
+ok
+test_magic_others (tests.test_math.TestMagic) ... "n" must be 3 or 4
+"n" must be 3 or 4
+"n" must be 3 or 4
+"n" must be 3 or 4
+"n" must be 3 or 4
+"n" must be 3 or 4
+"n" must be 3 or 4
+"n" must be 3 or 4
+ok
+test_hello (tests.test_greeting.TestHello) ... Hello!
+ok
+test_quote (tests.test_greeting.TestQuote) ... Life is too important to be taken seriously.
+ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.012s
+
+OK
+```
+
+You can see that both test scripts have been executed as desired.
 
 
 ## Test with Various Python Versions

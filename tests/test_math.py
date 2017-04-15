@@ -4,7 +4,7 @@
 import unittest
 import numpy as np
 
-from testpack.math import magic_square
+from testpack.math import magic_square, sumproduct
 
 class TestMagic(unittest.TestCase):
 
@@ -47,6 +47,7 @@ class TestMagic(unittest.TestCase):
             self.magic_helper(n)
         for n in range(6,11):
             self.magic_helper(n)
+
 
 if __name__ == '__main__':
     unittest.main()
