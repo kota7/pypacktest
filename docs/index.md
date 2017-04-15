@@ -801,7 +801,7 @@ OK
 
 ### Incorporate Unit Test to Package Building
 
-So far we have written a testing script and successfully run it to confirm that one of our function is working as it should.  In order to construct a testting framework for our package, we will extend it in two ways.
+So far we have written a testing script and successfully run it to confirm that one of our functions is working as it should.  In order to construct a testting framework for the entire package, we will extend it in two ways.
 
 1. Write many test scripts and run them all at once
 2. Conduct test *before* building the package
@@ -810,9 +810,9 @@ The purpose of the first extention is obvious.  A package may have more than one
 
 Both features are supported by the `setuptools` framework.  Let's take a look.
 
-First, add another test script to mimic a real development process, where we have many tests.  We name it `test_greeting.py` and let it test the functions in the `greeting` module.
+First, add another test script to mimic a real development process, where we have many things to test.  We name it `test_greeting.py` and let it test the functions in the `greeting` module.
 
-The test structure is same as the one for `math` module.  Notice that we expect the functions to return nothing, hence we use `assertIsNone` method.
+The test structure is same as the one for `math` module.  Notice that we expect the functions to return nothing, and hence we use `assertIsNone` method.
 *test_greeting.py*
 ```python
 #!/usr/bin/env python
