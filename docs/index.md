@@ -1,8 +1,10 @@
 PYPACKTEST
 ==========
 
+A Step-by-Step Guide for First Package Development.
 
-This document is written based on `Python 3.5.2` and `2.7.13` with `pip 9.0.1`, and `setuptools 27.2.0`.
+This document shows readers how to build their own python packages from the very scratch up to the registration to PyPI (Python Package Index).
+Mainly developed on `Python 3.5.2` with `pip 9.0.1`, and `setuptools 27.2.0`.
 
 
 ## Simplest package
