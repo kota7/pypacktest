@@ -958,7 +958,39 @@ setup.py` file.  This option would be an easier but still robust alternative.
 
 ## Test with Various Python Versions
 
-TBA
+Although more and more people are switching to Python 3, Python2 is still popular.  As package developers we would like our packages to work properly on both versions of Python.  More generally, testing packages on various python versions is an important step to increase the number of potential users.
+
+We can technically conduct tests on our local computer by making virtual environment with different python versions.  However, this would be a tedious and boring task.  We will how we can manage the testing process using a online service called [Travis CI](https://travis-ci.org/).
+Travis CI is a free continuous integration platform for GitHub projects, and we can use it to automate the package testing.  I describe the process briefly below.  See [official introduction](https://docs.travis-ci.com/user/getting-started) for more details.
+
+1. Sign in to Travic CI with your Github account (If you do not have one yet, create one).
+2. Go to your profile page on Travic CI (there is a link on the upper right corner as of the time I write this page).
+3. Turn on the repository for which you would like to test. If you see a check mark, it is on. ![travis-switch](travis-switch.png)
+4. Go to your Github page, and create a file named `.travis.yml` at the root directory of the repository to test.
+
+Then, every time the respository is updated, a test is invoked on Travis CI under the configuration specified in `.travis.yml` file.
+Below is an example test configuration for our package.  The package is tested on python 2.7 and 3.3 through 3.6.  The package shall be installed by `pip install .` (no need for `pip install -r requirements.txt` since we have specified the requirement by the `install_requires`).  The test command is `py.test`, which is an old alias for `pytest`.  On Travis CI we need to use it since `pytest` is not built in for python 3.3 or older.
+
+*.travis.yml*
+
+```
+language: python
+python:
+  - "2.7"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+# command to install dependencies
+install:
+  - pip install .
+# command to run tests
+script:
+- py.test -v tests/
+```
+
+When you commit a change on Github repository, the test automotically starts on Travis CI.  After a while, you can see the test result in the build status page of the repository.
+
 
 ## Register on PyPI
 
