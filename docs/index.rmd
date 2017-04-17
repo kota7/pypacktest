@@ -1150,6 +1150,7 @@ Github provides several ways to publish personal and project websites through th
 There are three ways for you to publish a project page sources: (a) "master" branch; (b) "gh-pages" branch; (c) `docs/` folder in the master branch.  (a) is not a good idea since we have package script in the master branch.  (b) is tedious since you need to switch branches to put together the website sources.  In my opinion, (c) is the best choice for us.
 
 So far, we generated package documentation in the `apidoc/_build/html` folder.  To publish this we need to
+
 1. Make `docs/` folder in the project root (*i.e.* `pypacktest/`).
 2. Copy eveything inside `apidoc/_build/html` to `docs/` folder.
 3. Create an empty file named `.nojekyll` in `docs/` folder.
