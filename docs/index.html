@@ -1,0 +1,753 @@
+<h1 id="pypacktest">PYPACKTEST</h1>
+<p>A Step-by-Step Guide for First Package Development.</p>
+<p>This document shows readers how to build their own python packages from the very scratch up to the registration to PyPI (Python Package Index). Mainly developed on <code>Python 3.5.2</code> with <code>pip 9.0.1</code>, and <code>setuptools 27.2.0</code>.</p>
+<h2 id="simplest-package">Simplest package</h2>
+<p>Consider a folder as below:</p>
+<pre><code>pypacktest/
+    setup.py
+    testpack/
+        __init__.py
+        greeting.py</code></pre>
+<p>Surprisingly, this is already a package!<br />If we write appropriate codes in <code>setup.py</code>, then we can install this using <code>pip</code> command.</p>
+<p>And here is the minimal <code>setup.py</code>.</p>
+<p><em>setup.py</em></p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="co"># -*- coding: utf-8 -*-</span>
+
+<span class="ch">from</span> setuptools <span class="ch">import</span> setup, find_packages
+
+setup(
+    name=<span class="st">&#39;testpack&#39;</span>,
+    version=<span class="st">&#39;0.1&#39;</span>,
+    packages=find_packages()
+)</code></pre>
+<p>First, we import <code>setup</code> function from <code>setuptools</code> module. <code>setup</code> function does most of the job for us; it puts together packages provided that we give an appropriate scripts. <code>find_packages</code> function, which also comes from <code>setuptools</code> module, is a helpful function that finds package folders under the directory tree. In this application, the function detects <code>testpack/</code> folder since it is the only folder that has <code>__init__.py</code> (As a rule, folders with <code>__init__.py</code> file are regarded as a package.) Hence, we can also write <code>packages=[&quot;testpack&quot;]</code>. If we have a lot of packages within the tree, then <code>find_packages</code> function reduces our writing.</p>
+<p>Now let's take a look at our only module, <code>greeting.py</code>.</p>
+<p><em>greeting.py</em></p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="co"># -*- coding: utf-8 -*-</span>
+
+<span class="kw">def</span> say_hello():
+    <span class="dt">print</span>(<span class="st">&quot;Hello!&quot;</span>)</code></pre>
+<p>So, <code>greeting</code> module has only one function named <code>say_hello</code>, which prints a message &quot;Hello!&quot; on the console.</p>
+<p>Finally, <code>__init__.py</code> file is an empty text file.</p>
+<p>Okay, now we are ready to install this package to python. At the <code>testpack/</code> folder, run the following command:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">pip</span> install -U .</code></pre>
+<p><code>.</code> indicates that the package to install is located at the current folder. You can also move one folder up and run <code>pip install -U ./pypacktest</code>.</p>
+<p>The option <code>-U</code> forces to upgrade the package, whether or not you already have the latest version. This is useful for our experiments since we make slight changes in our source code and see differences resulted from them. If we omit <code>-U</code> option, then <code>pip</code> will skip installation saying &quot;Requirement already satisfied&quot;.</p>
+<p>If the above command runs successfully, then <code>testpack</code> should already be installed in python. To confirm this, run:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">pip</span> list --format columns</code></pre>
+<p>In my environment, I get the following result. Yes! <code>testpack ver0.1</code> is installed!</p>
+<pre><code>Package    Version
+---------- -------
+pip        9.0.1  
+setuptools 27.2.0 
+testpack   0.1    
+wheel      0.29.0 </code></pre>
+<p>We can now use <code>testpack</code> package and functions therein like other packages. One caution is that we need to import <code>testpack.greeting</code>, not just <code>testpack</code>. To see this, run the followings on the terminal. Note that the option <code>-c</code> lets you type in python commands without starting a python session.</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">python</span> -c <span class="st">&quot;import testpack.greeting; testpack.greeting.say_hello()&quot;</span>
+<span class="kw">Hello</span>!</code></pre>
+<p>The message &quot;Hello!&quot; is printed as desired. However,</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">python</span> -c <span class="st">&quot;import testpack; testpack.greeting.say_hello()&quot;</span>
+<span class="kw">Traceback</span> (most recent call last)<span class="kw">:</span>
+  <span class="kw">File</span> <span class="st">&quot;&lt;string&gt;&quot;</span>, line 1, in <span class="kw">&lt;</span>module<span class="kw">&gt;</span>
+<span class="kw">AttributeError</span>: module <span class="st">&#39;testpack&#39;</span> has no attribute <span class="st">&#39;greeting&#39;</span></code></pre>
+<p>I don't know exactly why, but this may be same as <code>urllib</code> versus <code>urllib.request</code>.</p>
+<p>In any case, we have successfully build an original package locally on Python.</p>
+<h2 id="edit-__init__.py">Edit <code>__init__.py</code></h2>
+<p>We can leave <code>__init__.py</code> file empty. The most important job of this file is to tell python that the folder is a package. But it can do other jobs too.</p>
+<p>When a package is imported, <code>__init__.py</code> is run. To see this, let's edit the file as follows.</p>
+<p><em>__init__.py</em></p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="dt">print</span>(<span class="st">&#39;I count ten:&#39;</span>, end=<span class="st">&#39; &#39;</span>)
+<span class="kw">for</span> i in <span class="dt">range</span>(<span class="dv">1</span>, <span class="dv">11</span>):
+    <span class="dt">print</span>(i, end=<span class="st">&#39; &#39;</span>)
+<span class="dt">print</span>()</code></pre>
+<p>This code prints numbers from 1 to 10. Run <code>pip install -U .</code> and then,</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">python</span> -c <span class="st">&quot;import testpack&quot;</span>
+<span class="kw">I</span> count ten: 1 2 3 4 5 6 7 8 9 10</code></pre>
+<p>Note that you should run this somewhere other than <code>pypacktest/</code>. If you run this at <code>pypacktest/</code>, then python would import the local folder instead of the installed package.</p>
+<p>As expected, numbers are printed when <code>testpack</code> package is imported. Note this happens only for once. The script is not run for the second import.</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">python</span> -c <span class="st">&quot;import testpack; import testpack&quot;</span>
+<span class="kw">I</span> count ten: 1 2 3 4 5 6 7 8 9 10</code></pre>
+<p>Of course, we can let the file do more useful things than printing numbers. An important application is to associate functions directly to the package. Currently, our <code>say_hello</code> function is accessed by <code>testpack.greeting.say_hello</code>. This is a lot of writing. It could be better in users can use the function by <code>testpack.say_hello</code>. We can do this using <code>__init__.py</code>.</p>
+<p>Edit <code>__init__.py</code> as follows:</p>
+<p><em>__init__.py</em></p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="ch">from</span> .greeting <span class="ch">import</span> say_hello</code></pre>
+<p>This says, when <code>testpack</code> is imported, the function <code>say_hello</code> is fetched to directly under <code>testpack</code> namespace (I am not sure if this terminology is correct, though).</p>
+<p>We can do the following now (don't forget to run <code>pip install -U .</code>):</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">python</span> -c <span class="st">&quot;import testpack; testpack.say_hello()&quot;</span>
+<span class="kw">Hello</span>!</code></pre>
+<p>I find this quite useful, particularly to fetch package's core functionalities (functions or classes) directly under the package name. For example (if you have <code>pandas</code> package installed), we can see that <code>pandas.Series</code> is actually located deep inside the package tree.</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">python</span> -c <span class="st">&quot;import pandas; x = pandas.Series([1,2,3]); print(type(x))&quot;</span>
+<span class="kw">&lt;class</span> <span class="st">&#39;pandas.core.series.Series&#39;</span><span class="kw">&gt;</span></code></pre>
+<h2 id="specify-dependencies">Specify Dependencies</h2>
+<p>Unless you are a super programmer who can write everything by your own, your package will rely on other people's works. If this is the case, we should specify packages on which your package depends on in the <code>setup.py</code> file. If we do so, <code>pip</code> will install them automatically (if they are not installed yet) before installing our package.</p>
+<p>Note that this section covers dependencies on packages on PyPI.<br />Dependencies on packages not available on PyPI is covered in a later section.</p>
+<p>The following example shows a setup file for a package that depends on <code>numpy</code>. The dependencies are given as a string list to <code>install_requires</code> field.</p>
+<p><em>setup.py</em></p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="co"># -*- coding: utf-8 -*-</span>
+
+<span class="ch">from</span> setuptools <span class="ch">import</span> setup, find_packages
+
+setup(
+    name=<span class="st">&#39;testpack&#39;</span>,
+    version=<span class="st">&#39;0.1&#39;</span>,
+    packages=find_packages(),
+    
+    install_requires=[ 
+        <span class="st">&quot;numpy&quot;</span>
+    ]
+)</code></pre>
+<p>Let's make a function that uses <code>numpy</code>. Add another script file (module) named &quot;math.py&quot; to the <code>testpack/</code> folder.</p>
+<p><em>math.py</em></p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="co"># -*- coding: utf-8 -*-</span>
+
+<span class="ch">import</span> numpy <span class="ch">as</span> np
+
+<span class="kw">def</span> sumproduct(x, y):
+    <span class="kw">return</span> np.dot(np.array(x), np.array(y))</code></pre>
+<p><code>sumproduct</code> function computes the weighted sum of two vectors <code>x</code> and <code>y</code>.</p>
+<p>As a result, our folder structure is as below.</p>
+<pre><code>pypacktest/
+    setup.py
+    testpack/
+        __init__.py
+        greeting.py
+        math.py</code></pre>
+<p>Run <code>pip install -U .</code>, and run the following command:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">python</span> -c <span class="st">&quot;import testpack.math; print(testpack.math.sumproduct([1,2,3], [4,5,6]))&quot;</span>
+<span class="kw">32</span></code></pre>
+<p>As expected, we obtain <code>32 (=1*4 + 2*5 + 3*6)</code>.</p>
+<p>If the package depends on specific versions of other packages, say numpy v.1 or later, then we can be more specific in the <code>setup.py</code> file like: <code>numpy&gt;=1</code>.</p>
+<h2 id="include-and-use-data-files">Include and Use Data Files</h2>
+<p>We may want to include data files within our package. To do so, we simply locate files somewhere in the package tree, and then express our intention to include them in the <code>setup.py</code>. If we omit that, then <code>pip</code> would ignore files not with <code>.py</code> extention.</p>
+<p>Let us start with a simple example. Add a text file as below in the <code>testpack/</code> folder.</p>
+<p><em>wilde.txt</em></p>
+<pre><code>Life is too important to be taken seriously.</code></pre>
+<p>Our folder structure is now:</p>
+<pre><code>pypacktest/
+    setup.py
+    testpack/
+        __init__.py
+        greeting.py
+        math.py
+        wilde.txt</code></pre>
+<p>Edit <code>setup.py</code> file as below:</p>
+<p><em>setup.py</em></p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="co"># -*- coding: utf-8 -*-</span>
+
+<span class="ch">from</span> setuptools <span class="ch">import</span> setup, find_packages
+
+setup(
+    name=<span class="st">&#39;testpack&#39;</span>,
+    version=<span class="st">&#39;0.1&#39;</span>,
+    packages=find_packages(),
+
+    install_requires=[
+        <span class="st">&quot;numpy&quot;</span>
+    ],
+    package_data={
+        <span class="st">&#39;testpack&#39;</span>: [<span class="st">&#39;wilde.txt&#39;</span>]
+    }
+)</code></pre>
+<p><code>package_data</code> option is a dictionary that maps from package names to a set of data files. This particular example states that <code>testpack/</code> package includes the file <code>wilde.txt</code>. The reason why we specify the package name that include the file is because a package may be a bundle of several packages (Recall that all folders with <code>__init__.py</code> are packages).</p>
+<p>To see how we can use the included files, let's extend our <code>greeting.py</code> module as below:</p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="co"># -*- coding: utf-8 -*-</span>
+
+<span class="ch">from</span> pkg_resources <span class="ch">import</span> resource_string
+
+<span class="kw">def</span> say_hello():
+    <span class="dt">print</span>(<span class="st">&quot;Hello!&quot;</span>)
+
+<span class="kw">def</span> give_quote():
+    x = resource_string(<span class="ot">__name__</span>, <span class="st">&#39;wilde.txt&#39;</span>).decode().strip()
+    <span class="dt">print</span>(x)</code></pre>
+<p>We now have a new function <code>give_quote</code>. In this function, we first read the <code>wilde.txt</code> file include in the package. <code>resource_string</code> from <code>pkg_resources</code> reads the specified file and returns the contents of the file as binary string. We then clean the string a bit and print it on the console. We specify which package the file <code>wilde.txt</code> belongs to by providing <code>__name__</code> as the first argument, which equals <code>testpack.greeting</code> when the module is imported.</p>
+<p>Run <code>pip install -U .</code> and run:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">python</span> -c <span class="st">&quot;from testpack.greeting import give_quote; give_quote()&quot;</span>
+<span class="kw">Life</span> is too important to be taken seriously.</code></pre>
+<p>As expected, the contents of the text file have been printed.</p>
+<h3 id="binary-files">Binary Files</h3>
+<p>Our data files may be of binary format. If so, <code>resource_string</code> is inappropriate since it is designed to return the contents as a string. We will see how to handle binary files with the following example. Create a folder <code>magic_square/</code> in the <code>testpack/</code> folder. Move to the <code>magic_square/</code> folder and run the following command:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">python</span> -c <span class="st">&quot;from numpy import *; x = array([[8,1,6], [3,5,7], [4,9,2]]); save(&#39;3.npy&#39;, x); y = array([[1,2,15,16], [13,14,3,4], [12,7,10,5], [8,11,6,9]]); save(&#39;4.npy&#39;, y)&quot;</span></code></pre>
+<p>This command creates 3x3 and 4x4 <a href="https://en.wikipedia.org/wiki/Magic_square">magic squares</a> and save them as binary files of <code>.npy</code> format.</p>
+<p>We now have the following folder structure:</p>
+<pre><code>pypacktest/
+    setup.py
+    testpack/
+        __init__.py
+        greeting.py
+        math.py
+        wilde.txt
+        magic_square/
+            3.npy
+            4.npy</code></pre>
+<p>Edit <code>setup.py</code> as below so we include the added files:</p>
+<p><em>setup.py</em></p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="co"># -*- coding: utf-8 -*-</span>
+
+<span class="ch">from</span> setuptools <span class="ch">import</span> setup, find_packages
+
+setup(
+    name=<span class="st">&#39;testpack&#39;</span>,
+    version=<span class="st">&#39;0.1&#39;</span>,
+    packages=find_packages(),
+
+    install_requires=[ 
+        <span class="st">&quot;numpy&quot;</span>
+    ],
+    package_data={
+        <span class="st">&#39;testpack&#39;</span>: [<span class="st">&#39;wilde.txt&#39;</span>, <span class="st">&#39;magic_square/*.npy&#39;</span>]
+    }
+)</code></pre>
+<p>And add a function that uses the new files in the <code>math.py</code> module:</p>
+<p><em>math.py</em></p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="co"># -*- coding: utf-8 -*-</span>
+
+<span class="ch">import</span> numpy <span class="ch">as</span> np
+<span class="ch">from</span> pkg_resources <span class="ch">import</span> resource_stream
+
+
+<span class="kw">def</span> sumproduct(x, y):
+    <span class="kw">return</span> np.dot(np.array(x), np.array(y))
+
+
+<span class="kw">def</span> magic_square(n):
+    <span class="kw">if</span> n in [<span class="dv">3</span>, <span class="dv">4</span>]:
+        x = np.load(resource_stream(<span class="ot">__name__</span>, <span class="st">&#39;magic_square/</span><span class="ot">%d</span><span class="st">.npy&#39;</span> % n))
+        <span class="kw">return</span> x
+    <span class="kw">else</span>:
+        <span class="dt">print</span>(<span class="st">&#39;&quot;n&quot; must be 3 or 4&#39;</span>)</code></pre>
+<p>The new function <code>magic_square</code> reads the <code>.npy</code> file and return the array if the argument <code>n</code> is 3 or 4. Note that we use the <code>resource_stream</code> function. This function returns a file-like object to read the file, which we can pass to the appropriate reader function.</p>
+<p>Run <code>pip install -U .</code> and run:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">python</span> -c <span class="st">&quot;from testpack.math import magic_square; print(magic_square(3)); print(magic_square(4)); magic_square(5)&quot;</span>
+[[<span class="kw">8</span> 1 6]
+ [<span class="kw">3</span> 5 7]
+ [<span class="kw">4</span> 9 2]]
+<span class="kw">[[</span> 1  2 15 16]
+ [13 14  3  4]
+ [12  7 10  5]
+ [ 8 11  6  9]]
+<span class="st">&quot;n&quot;</span> must be 3 or 4</code></pre>
+<p>As exprected, we obtain magic squares for <code>n=3</code> and <code>n=4</code>, and a message for <code>n=5</code>.</p>
+<h2 id="include-command-line-tool">Include Command Line Tool</h2>
+<p>Users of our Python packages can incorporate the functionalities in their own programs. Some users may find coding troublesome even with the help of our packages. Executable programs will provide additional usability to such people.</p>
+<p>We can attach our executable programs just by adding a few lines in the <code>setup.py</code> file. We see two ways for doing this. Both apporaches are valid.</p>
+<h3 id="specify-scripts-field">Specify <code>scripts</code> field</h3>
+<p>Let's write a program that uses our <code>give_quote</code> function to print a nice sentense on the console. Make a folder <code>bin/</code> in the same directory as <code>setup.py</code> and make a file <code>oscar-wilde</code> as below.</p>
+<p><em>oscar-wilde</em></p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="co">#!/usr/bin/env python</span>
+<span class="co"># -*- coding: utf-8 -*-</span>
+
+<span class="ch">import</span> testpack.greeting
+
+<span class="kw">def</span> main():
+    testpack.greeting.give_quote()
+
+main()</code></pre>
+<p>I added <code>#!/usr/bin/env python</code> in the first line. This makes it clear that the script shall be run by python. In this script, I define <code>main</code> function in the middle, and call it at the end. Although this is not mandatory, it is a good practice when writing an executable python script to encapsulate the entire procedure in the main function.</p>
+<p>Our folder structure is as below now:</p>
+<pre><code>pypacktest/
+    setup.py
+    testpack/
+        __init__.py
+        greeting.py
+        math.py
+        wilde.txt
+        magic_square/
+            3.npy
+            4.npy
+    bin/
+        oscar-wilde</code></pre>
+<p>In the <code>setup.py</code>, we add <code>scripts</code> field as below, which points to the executable file locations. <em>setup.py</em></p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="co"># -*- coding: utf-8 -*-</span>
+
+<span class="ch">from</span> setuptools <span class="ch">import</span> setup, find_packages
+
+setup(
+    name=<span class="st">&#39;testpack&#39;</span>,
+    version=<span class="st">&#39;0.1&#39;</span>,
+    packages=find_packages(),
+
+    install_requires=[
+        <span class="st">&quot;numpy&quot;</span>
+    ],
+    package_data={
+        <span class="st">&#39;testpack&#39;</span>: [<span class="st">&#39;wilde.txt&#39;</span>, <span class="st">&#39;magic_square/*.npy&#39;</span>]
+    },
+    scripts=[<span class="st">&#39;bin/oscar-wilde&#39;</span>]
+)</code></pre>
+<p><code>pip install -U .</code>, and run:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">oscar-wilde</span>
+<span class="kw">Life</span> is too important to be taken seriously.</code></pre>
+<h2 id="use-entry_points">Use <code>entry_points</code></h2>
+<p>An alternative way of including executable files in python packages is to specify <code>entry_points</code> field in the <code>setup.py</code>. In this approach, we write a <em>function</em> instead of a script file. Let's see.</p>
+<p>In the <code>testpack/</code> folder, add a file named <code>command.py</code> as below:</p>
+<p><em>command.py</em></p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="co"># -*- coding: utf-8 -*-</span>
+
+<span class="ch">from</span> argparse <span class="ch">import</span> ArgumentParser
+<span class="ch">import</span> testpack.math
+
+<span class="kw">def</span> magic_square():
+    parser = ArgumentParser(description=<span class="st">&#39;Return a magic square of size 3 or 4&#39;</span>)
+    parser.add_argument(<span class="st">&#39;n&#39;</span>, <span class="dt">type</span>=<span class="dt">int</span>, <span class="dt">help</span>=<span class="st">&#39;square size&#39;</span>)
+    args = parser.parse_args()
+
+    <span class="kw">if</span> args.n in [<span class="dv">3</span>,<span class="dv">4</span>]:
+        x = testpack.math.magic_square(args.n)
+        <span class="kw">for</span> i in <span class="dt">range</span>(<span class="dt">len</span>(x)):
+            <span class="kw">for</span> j in <span class="dt">range</span>(<span class="dt">len</span>(x[i])):
+                <span class="dt">print</span>(<span class="st">&#39;</span><span class="ot">%3d</span><span class="st">&#39;</span> % x[i,j], end=<span class="st">&#39; &#39;</span>)
+            <span class="dt">print</span>(<span class="st">&#39;&#39;</span>)
+    <span class="kw">else</span>:
+        <span class="dt">print</span>(<span class="st">&#39;currently only n = 3 or 4 is supported&#39;</span>)
+        <span class="kw">return</span></code></pre>
+<p>We define <code>magic_square</code> function in this module. This is the same name as the one in <code>testpack.math</code> so we distinguish the two by the module names. We use <code>ArgumentParser</code> class from <code>argparse</code> package to handle user inputs. See the <a href="https://docs.python.org/3.5/library/argparse.html">official documentation</a> for more in depth about this class. In the <code>magic_square</code> function, we call <code>testpack.math.magic_square</code> to obtain an array of the desired size, and then print it on the console.</p>
+<p>To make this function to be invoked by a console command, edit the <code>setup.py</code> as follows: <em>setup.py</em></p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="co"># -*- coding: utf-8 -*-</span>
+
+<span class="ch">from</span> setuptools <span class="ch">import</span> setup, find_packages
+
+setup(
+    name=<span class="st">&#39;testpack&#39;</span>,
+    version=<span class="st">&#39;0.1&#39;</span>,
+    packages=find_packages(),
+
+    install_requires=[
+        <span class="st">&quot;numpy&quot;</span>
+    ],
+    package_data={
+        <span class="st">&#39;testpack&#39;</span>: [<span class="st">&#39;wilde.txt&#39;</span>, <span class="st">&#39;magic_square/*.npy&#39;</span>]
+    },
+    scripts=[<span class="st">&#39;bin/oscar-wilde&#39;</span>],
+    entry_points={
+        <span class="st">&#39;console_scripts&#39;</span>: [<span class="st">&#39;magic-square=testpack.command:magic_square&#39;</span>]
+    }
+)</code></pre>
+<p>As you can see, <code>entry_points</code> field is a dictionary. <code>console_scripts</code> is the one we use to make executable script. The grammar is <code>&lt;command name&gt;=&lt;package and/or module&gt;:&lt;function name&gt;</code>.</p>
+<p>Here is the current folder structure.</p>
+<pre><code>pypacktest/
+    setup.py
+    testpack/
+        __init__.py
+        greeting.py
+        math.py
+        command.py
+        wilde.txt
+        magic_square/
+            3.npy
+            4.npy
+    bin/
+        oscar-wilde</code></pre>
+<p><code>pip install -U .</code>, and run the followings. <code>magic-square</code> command shows the array if 3 or 4 is supplied. It catches invalid input and gives an error, since we specified that the input shall be an integer.</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">magic-square</span> 3
+  <span class="kw">8</span>   1   6
+  <span class="kw">3</span>   5   7
+  <span class="kw">4</span>   9   2
+$ <span class="kw">magic-square</span> 4
+  <span class="kw">1</span>   2  15  16
+ <span class="kw">13</span>  14   3   4
+ <span class="kw">12</span>   7  10   5
+  <span class="kw">8</span>  11   6   9
+$ <span class="kw">magic-square</span> 5
+<span class="kw">currently</span> only n = 3 or 4 is supported
+$ <span class="kw">magic-square</span> a
+<span class="kw">usage</span>: magic-square [-h] n
+<span class="kw">magic-square</span>: error: argument n: invalid int value: <span class="st">&#39;a&#39;</span></code></pre>
+<p>Notice that we only wrote a function, and the executable file has been created during the installation of the package. If you are curious and want to see what kind of file has been created, run <code>which magic-square</code> on bash terminal or <code>where magic-square</code> on Windows command prompt. This will tell you the location of the created executable file. You can take a look at the content of it since it is a python script.</p>
+<h3 id="which-is-better">Which is better?</h3>
+<p>We have seen two approaches for adding executable command line tools to our packages. So which is better? As far as I notice in the developers' discussion, people are generally shifting towards the second approach (<em>i.e.</em> using <code>entry_point</code>). Hence, unless you have a strong preference for the <code>script</code> approach, it seems employing <code>entry_point</code> approach is the safer choice. In this document, we will keep <code>bin/</code> folder for the purpose of demonstration. See <em>e.g.</em>, discussions on <a href="http://stackoverflow.com/questions/18787036/difference-between-entry-points-console-scripts-and-scripts-in-setup-py">stackoverflow</a> and this <a href="https://packaging.python.org/distributing/#scripts">documentation</a>.</p>
+<h2 id="publish-on-github">Publish on Github</h2>
+<p>So far we have been installing our package from local files. Let's publish it online at <a href="https://github.com/">Github</a> so that other people can install by <code>pip</code> command. This document does not cover git and github. If you are not familiary with them, you can easily learn from online resources.</p>
+<p>If you have successfully build your package already, then there is nothing special to do for our scripts. Make a github account and put your <code>pypacktest</code> folder in one of your repository. Then it is ready.</p>
+<p>My package is located at https://github.com/kota7/pypacktest. The install command will be</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">pip</span> install git+https://github.com/kota7/pypacktest</code></pre>
+<p>Congraturations. We have finally published our packages to people in the world.</p>
+<h2 id="specify-dependencies-not-available-on-pypi">Specify Dependencies not Available on PyPI</h2>
+<p>TBA</p>
+<h2 id="testing">Testing</h2>
+<p>Designing automoated tests is a fundamental part of package building. A comprehensive set of tests would detect any broken functionalities caused by future development or possibly by revisions of the dependencies.</p>
+<p>We will see how we can create testing frame work using <code>unittest</code> package, and also how we can incorporate that to package development with <code>pip</code> command.</p>
+<h3 id="using-unittest">Using <code>unittest</code></h3>
+<p>First, let's make <code>tests/</code> folder in <code>pypacktest/</code> folder and create a file <code>test_math.py</code>.</p>
+<p><em>test_math.py</em></p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="co">#!/usr/bin/env python</span>
+<span class="co"># -*- coding: utf-8 -*-</span>
+
+<span class="ch">import</span> unittest
+<span class="ch">import</span> numpy <span class="ch">as</span> np
+
+<span class="ch">from</span> testpack.math <span class="ch">import</span> magic_square
+
+<span class="kw">class</span> TestMagic(unittest.TestCase):
+    <span class="kw">def</span> test_magic3(<span class="ot">self</span>):
+        x = magic_square(<span class="dv">3</span>)
+        <span class="co"># first, x must be 2-dim numpy array</span>
+        <span class="ot">self</span>.assertIsInstance(x, np.ndarray)
+        <span class="ot">self</span>.assertEqual(<span class="dt">len</span>(x.shape), <span class="dv">2</span>)
+        <span class="co"># and each size must be 3 </span>
+        <span class="ot">self</span>.assertEqual(x.shape[<span class="dv">0</span>], <span class="dv">3</span>)
+        <span class="ot">self</span>.assertEqual(x.shape[<span class="dv">1</span>], <span class="dv">3</span>)
+
+        <span class="co"># as a magic square, row-sums, col-sums, diag-sums </span>
+        <span class="co"># must be all equal</span>
+        all_sums = np.concatenate([
+            x.<span class="dt">sum</span>(axis=<span class="dv">1</span>), <span class="co"># row sums</span>
+            x.<span class="dt">sum</span>(axis=<span class="dv">0</span>)  <span class="co"># col sums</span>
+        ])
+        <span class="co"># diag sums</span>
+        all_sums = np.append(all_sums, x.trace()) 
+        all_sums = np.append(all_sums, np.fliplr(x).trace()) 
+        <span class="ot">self</span>.assertEqual(np.unique(all_sums).size, <span class="dv">1</span>) 
+
+<span class="kw">if</span> <span class="ot">__name__</span> == <span class="st">&#39;__main__&#39;</span>:
+    unittest.main()</code></pre>
+<p>Here is a general structure of a test script.</p>
+<ol style="list-style-type: decimal">
+<li>Define a class that inherits <code>unittest.TestCase</code></li>
+<li>Define methods named <code>test_&lt;something&gt;</code></li>
+<li>Write tests in the methods using <code>assert</code> methods.</li>
+<li>Add <code>unittest.main()</code> under the <code>if __name__ == '__main__'</code> clause.</li>
+</ol>
+<p>In the code above, we have only one test method, <code>test_magic3</code>, which tests the behavior of the <code>magic_square</code> function for <code>n=3</code> case. More specifically it makes sure that the function returns a <code>numpy.ndarray</code> object of expected size, and the sums satisfies the magic square property.</p>
+<p>We are using <code>assertIsInstance</code> and <code>assertEqual</code> among many other methods. See <a href="https://docs.python.org/3/library/unittest.html#unittest.TestCase">unittest documentation</a> for comprehensive description of <code>assert</code> methods.</p>
+<p>The current folder structure is as below:</p>
+<pre><code>pypacktest/
+    setup.py
+    testpack/
+        __init__.py
+        greeting.py
+        math.py
+        command.py
+        wilde.txt
+        magic_square/
+            3.npy
+            4.npy
+    bin/
+        oscar-wilde
+    tests/
+        test_math.py</code></pre>
+<p>Now run:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">python</span> tests/test_math.py -v</code></pre>
+<p><code>-v</code> option is the flag for displaying detailed process of testing. If you have copied all scripts so far, you may be seeing a warning like this:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"> <span class="kw">ResourceWarning</span>: unclosed file <span class="kw">&lt;</span>_io.BufferedReader name=<span class="st">&#39;/**/**/**/**/testpack/magic_square/3.npy&#39;</span><span class="kw">&gt;</span>
+  <span class="kw">x</span> = np.load(resource_stream(__name__, <span class="st">&#39;magic_square/%d.npy&#39;</span> % n))</code></pre>
+<p>This has nothing to do with the tests we designed. It tells us that our code may have forgotten to close the magic square data file. We can fix this by editing the relevant part of our code so that files are closed with no doubt. Concretely, we can use <code>with</code> clause as below.</p>
+<p><em>math.py</em></p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="co"># -*- coding: utf-8 -*-</span>
+
+<span class="ch">import</span> numpy <span class="ch">as</span> np
+<span class="ch">from</span> pkg_resources <span class="ch">import</span> resource_stream
+
+<span class="kw">def</span> sumproduct(x, y):
+    <span class="kw">return</span> np.dot(np.array(x), np.array(y))
+
+<span class="kw">def</span> magic_square(n):
+    <span class="kw">if</span> n in [<span class="dv">3</span>, <span class="dv">4</span>]:
+        <span class="kw">with</span> resource_stream(<span class="ot">__name__</span>, <span class="st">&#39;magic_square/</span><span class="ot">%d</span><span class="st">.npy&#39;</span> % n) <span class="ch">as</span> f:
+            x = np.load(f)
+        <span class="kw">return</span> x
+    <span class="kw">else</span>:
+        <span class="dt">print</span>(<span class="st">&#39;&quot;n&quot; must be 3 or 4&#39;</span>)</code></pre>
+<p>This was a bit of digression but it acttually is a benefit of unit testing; It helps us to identify problems that we never imagined. With the revision above, and <code>pip install -U .</code> for update, run the test script again.</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">python</span> tests/test_math.py -v
+<span class="kw">test_magic3</span> (__main__.TestMagic) <span class="kw">...</span> ok
+
+<span class="kw">----------------------------------------------------------------------</span>
+<span class="kw">Ran</span> 1 test in 0.007s
+
+<span class="kw">OK</span></code></pre>
+<p>We have confirmed that the magic square of size 3 works well.</p>
+<p>Let's add more tests. While we can write another function for <code>n=4</code> case, we may better to write more generalizable script, just in case we may revise the function to cover up to <code>n=100</code> in the future. The code below is the revised version of the <code>test_math.py</code>. In this code, we defined <code>magic_helper</code> method, which tests the validity of <code>magic_square</code> function for a generic <code>n</code>. And we define <code>test_...</code> methods for various <code>n</code>. Notice that the <code>magic_helper</code> function is ignored by the testing procedure. This is because <code>unittest</code> recognizes methods named like <code>test_...</code> as test. <em>test_math.py</em></p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="co">#!/usr/bin/env python</span>
+<span class="co"># -*- coding: utf-8 -*-</span>
+
+<span class="ch">import</span> unittest
+<span class="ch">import</span> numpy <span class="ch">as</span> np
+
+<span class="ch">from</span> testpack.math <span class="ch">import</span> magic_square
+
+<span class="kw">class</span> TestMagic(unittest.TestCase):
+
+    <span class="kw">def</span> magic_helper(<span class="ot">self</span>, n):
+        x = magic_square(n)
+        <span class="kw">if</span> not (n in [<span class="dv">3</span>, <span class="dv">4</span>]):
+            <span class="co"># x should be None, no further test</span>
+            <span class="ot">self</span>.assertIsNone(x)
+            <span class="kw">return</span>
+        
+        <span class="co"># first, x must be 2-dim numpy array</span>
+        <span class="ot">self</span>.assertIsInstance(x, np.ndarray)
+        <span class="ot">self</span>.assertEqual(<span class="dt">len</span>(x.shape), <span class="dv">2</span>)
+        <span class="co"># and each size must be n </span>
+        <span class="ot">self</span>.assertEqual(x.shape[<span class="dv">0</span>], n)
+        <span class="ot">self</span>.assertEqual(x.shape[<span class="dv">1</span>], n)
+
+        <span class="co"># as a magic square, row-sums, col-sums, diag-sums </span>
+        <span class="co"># must be all equal</span>
+        all_sums = np.concatenate([
+            x.<span class="dt">sum</span>(axis=<span class="dv">1</span>), <span class="co"># row sums</span>
+            x.<span class="dt">sum</span>(axis=<span class="dv">0</span>)  <span class="co"># col sums</span>
+        ])
+        <span class="co"># diag sums</span>
+        all_sums = np.append(all_sums, x.trace()) 
+        all_sums = np.append(all_sums, np.fliplr(x).trace()) 
+        <span class="ot">self</span>.assertEqual(np.unique(all_sums).size, <span class="dv">1</span>) 
+    
+    <span class="kw">def</span> test_magic3(<span class="ot">self</span>):
+        <span class="ot">self</span>.magic_helper(<span class="dv">3</span>)
+
+    <span class="kw">def</span> test_magic4(<span class="ot">self</span>):
+        <span class="ot">self</span>.magic_helper(<span class="dv">4</span>)
+
+    <span class="kw">def</span> test_magic5(<span class="ot">self</span>):
+        <span class="ot">self</span>.magic_helper(<span class="dv">5</span>)
+    
+    <span class="kw">def</span> test_magic_others(<span class="ot">self</span>):
+        <span class="kw">for</span> n in <span class="dt">range</span>(<span class="dv">0</span>,<span class="dv">3</span>):
+            <span class="ot">self</span>.magic_helper(n)
+        <span class="kw">for</span> n in <span class="dt">range</span>(<span class="dv">6</span>,<span class="dv">11</span>):
+            <span class="ot">self</span>.magic_helper(n)
+
+<span class="kw">if</span> <span class="ot">__name__</span> == <span class="st">&#39;__main__&#39;</span>:
+    unittest.main()</code></pre>
+<p>Run the test to obtain:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">python</span> tests/test_math.py -v
+<span class="kw">test_magic3</span> (__main__.TestMagic) <span class="kw">...</span> ok
+<span class="kw">test_magic4</span> (__main__.TestMagic) <span class="kw">...</span> ok
+<span class="kw">test_magic5</span> (__main__.TestMagic) <span class="kw">...</span> <span class="st">&quot;n&quot;</span> must be 3 or 4
+<span class="kw">ok</span>
+<span class="kw">test_magic_all</span> (__main__.TestMagic) <span class="kw">...</span> <span class="st">&quot;n&quot;</span> must be 3 or 4
+<span class="st">&quot;n&quot;</span> <span class="kw">must</span> be 3 or 4
+<span class="st">&quot;n&quot;</span> <span class="kw">must</span> be 3 or 4
+<span class="st">&quot;n&quot;</span> <span class="kw">must</span> be 3 or 4
+<span class="st">&quot;n&quot;</span> <span class="kw">must</span> be 3 or 4
+<span class="st">&quot;n&quot;</span> <span class="kw">must</span> be 3 or 4
+<span class="st">&quot;n&quot;</span> <span class="kw">must</span> be 3 or 4
+<span class="st">&quot;n&quot;</span> <span class="kw">must</span> be 3 or 4
+<span class="kw">ok</span>
+
+<span class="kw">----------------------------------------------------------------------</span>
+<span class="kw">Ran</span> 4 tests in 0.008s
+
+<span class="kw">OK</span></code></pre>
+<h3 id="incorporate-unit-test-to-package-building">Incorporate Unit Test to Package Building</h3>
+<p>So far we have written a testing script and successfully run it to confirm that one of our functions is working as it should. In order to construct a testting framework for the entire package, we will extend it in two ways.</p>
+<ol style="list-style-type: decimal">
+<li>Write many test scripts and run them all at once</li>
+<li>Conduct test <em>before</em> building the package</li>
+</ol>
+<p>The purpose of the first extention is obvious. A package may have more than one functionality, each of which needs to be tested. The second extention may not look so important but it is a logical order; We would like to install a new version of the package only after it passes all tests.</p>
+<p>Both features are supported by the <code>setuptools</code> framework. Let's take a look.</p>
+<p>First, add another test script to mimic a real development process, where we have many things to test. We name it <code>test_greeting.py</code> and let it test the functions in the <code>greeting</code> module.</p>
+<p>The test structure is same as the one for <code>math</code> module. Notice that we expect the functions to return nothing, and hence we use <code>assertIsNone</code> method. <em>test_greeting.py</em></p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="co">#!/usr/bin/env python</span>
+<span class="co"># -*- coding: utf-8 -*-</span>
+
+<span class="ch">import</span> unittest
+<span class="ch">from</span> testpack.greeting <span class="ch">import</span> give_quote, say_hello
+
+
+<span class="kw">class</span> TestHello(unittest.TestCase):
+    
+    <span class="kw">def</span> test_hello(<span class="ot">self</span>):
+        <span class="ot">self</span>.assertIsNone(say_hello())
+
+<span class="kw">class</span> TestQuote(unittest.TestCase):
+    
+    <span class="kw">def</span> test_quote(<span class="ot">self</span>):
+        <span class="ot">self</span>.assertIsNone(give_quote())
+
+<span class="kw">if</span> <span class="ot">__name__</span> == <span class="st">&#39;__main__&#39;</span>:
+    unittest.main()</code></pre>
+<p>We add an empty <code>__init__.py</code> file in the <code>tests/</code> folder. By doing so, this folder is regarded as a package. This is because there is a rule that we need to supply tests in the <code>setup</code> function either by a function, class, module or package. Among them, I believe supplying a package is the easiest option.</p>
+<p>We edit the <code>setup.py</code> file as below. There are two changes. First, we excluded <code>'tests'</code> from the the package list, since <code>tests</code> package here is for our development and not to be supplied to users. Second, we specify <code>test_suite</code> field as <code>'tests'</code>, which tells that our test is found in the <code>tests</code> package.</p>
+<p><em>setup.py</em></p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="co"># -*- coding: utf-8 -*-</span>
+
+<span class="ch">from</span> setuptools <span class="ch">import</span> setup, find_packages
+
+setup(
+    name=<span class="st">&#39;testpack&#39;</span>,
+    version=<span class="st">&#39;0.1&#39;</span>,
+    packages=find_packages(exclude=[<span class="st">&#39;tests&#39;</span>]),
+    install_requires=[
+        <span class="st">&#39;numpy&#39;</span>
+    ],
+    package_data={
+        <span class="st">&#39;testpack&#39;</span>: [<span class="st">&#39;wilde.txt&#39;</span>, <span class="st">&#39;magic_square/*.npy&#39;</span>]
+    },
+    scripts=[<span class="st">&#39;bin/oscar-wilde&#39;</span>],
+    entry_points={
+        <span class="st">&#39;console_scripts&#39;</span>: [<span class="st">&#39;magic-square=testpack.command:magic_square&#39;</span>]
+    },
+    test_suite=<span class="st">&#39;tests&#39;</span>
+)</code></pre>
+<p>As a result, our folder structure becomes:</p>
+<pre><code>pypacktest/
+    setup.py
+    testpack/
+        __init__.py
+        greeting.py
+        math.py
+        command.py
+        wilde.txt
+        magic_square/
+            3.npy
+            4.npy
+    bin/
+        oscar-wilde
+    tests/
+        __init__.py
+        test_greeting.py
+        test_math.py</code></pre>
+<p>Finally, at the <code>pypacktest/</code> folder, run:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">python</span> setup.py test</code></pre>
+<p><code>test</code> is a keyword that indicate we would like to test the package <em>without</em> installing it. If everything works well, you should see the results like below.</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">running</span> test
+<span class="kw">running</span> egg_info
+<span class="kw">writing</span> entry points to testpack.egg-info/entry_points.txt
+<span class="kw">writing</span> requirements to testpack.egg-info/requires.txt
+<span class="kw">writing</span> testpack.egg-info/PKG-INFO
+<span class="kw">writing</span> dependency_links to testpack.egg-info/dependency_links.txt
+<span class="kw">writing</span> top-level names to testpack.egg-info/top_level.txt
+<span class="kw">reading</span> manifest file <span class="st">&#39;testpack.egg-info/SOURCES.txt&#39;</span>
+<span class="kw">writing</span> manifest file <span class="st">&#39;testpack.egg-info/SOURCES.txt&#39;</span>
+<span class="kw">running</span> build_ext
+<span class="kw">test_magic3</span> (tests.test_math.TestMagic) <span class="kw">...</span> ok
+<span class="kw">test_magic4</span> (tests.test_math.TestMagic) <span class="kw">...</span> ok
+<span class="kw">test_magic5</span> (tests.test_math.TestMagic) <span class="kw">...</span> <span class="st">&quot;n&quot;</span> must be 3 or 4
+<span class="kw">ok</span>
+<span class="kw">test_magic_others</span> (tests.test_math.TestMagic) <span class="kw">...</span> <span class="st">&quot;n&quot;</span> must be 3 or 4
+<span class="st">&quot;n&quot;</span> <span class="kw">must</span> be 3 or 4
+<span class="st">&quot;n&quot;</span> <span class="kw">must</span> be 3 or 4
+<span class="st">&quot;n&quot;</span> <span class="kw">must</span> be 3 or 4
+<span class="st">&quot;n&quot;</span> <span class="kw">must</span> be 3 or 4
+<span class="st">&quot;n&quot;</span> <span class="kw">must</span> be 3 or 4
+<span class="st">&quot;n&quot;</span> <span class="kw">must</span> be 3 or 4
+<span class="st">&quot;n&quot;</span> <span class="kw">must</span> be 3 or 4
+<span class="kw">ok</span>
+<span class="kw">test_hello</span> (tests.test_greeting.TestHello) <span class="kw">...</span> Hello!
+<span class="kw">ok</span>
+<span class="kw">test_quote</span> (tests.test_greeting.TestQuote) <span class="kw">...</span> Life is too important to be taken seriously.
+<span class="kw">ok</span>
+
+<span class="kw">----------------------------------------------------------------------</span>
+<span class="kw">Ran</span> 6 tests in 0.012s
+
+<span class="kw">OK</span></code></pre>
+<p>You can see that both test scripts have been executed as desired.</p>
+<h3 id="pytest-as-an-alternative-test-execution"><code>pytest</code> as an Alternative Test Execution</h3>
+<p>As an easier alternative, we can also use <code>pytest</code> package (you can download it by <code>pip install pytest</code>). At the <code>pypacktest/</code> folder, simply run:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">pytest</span> -v tests/
+============================= <span class="kw">test</span> session starts ==============================
+<span class="kw">platform</span> linux -- Python 3.5.2, pytest-3.0.7, py-1.4.33, pluggy-0.4.0 -- /**/**/**/**/**/**/python
+<span class="kw">cachedir</span>: .cache
+<span class="kw">rootdir</span>: /**/**/**/pypacktest, inifile:
+<span class="kw">collected</span> 6 items 
+
+<span class="kw">tests</span>/test_greeting.py::<span class="kw">TestHello</span>::test_hello PASSED
+<span class="kw">tests</span>/test_greeting.py::<span class="kw">TestQuote</span>::test_quote PASSED
+<span class="kw">tests</span>/test_math.py::<span class="kw">TestMagic</span>::test_magic3 PASSED
+<span class="kw">tests</span>/test_math.py::<span class="kw">TestMagic</span>::test_magic4 PASSED
+<span class="kw">tests</span>/test_math.py::<span class="kw">TestMagic</span>::test_magic5 PASSED
+<span class="kw">tests</span>/test_math.py::<span class="kw">TestMagic</span>::test_magic_others PASSED
+
+=========================== <span class="kw">6</span> passed in 0.16 seconds ===========================</code></pre>
+<p><code>pytest</code> script collects test items under the <code>test/</code> folder and execute them all. Notice that we do not even need to specify <code>test_suite</code> field in the <code>setup.py</code> file. This option would be an easier but still robust alternative.</p>
+<h2 id="test-with-various-python-versions">Test with Various Python Versions</h2>
+<p>Although more and more people are switching to Python 3, Python2 is still popular. As package developers we would like our packages to work properly on both versions of Python. More generally, testing packages on various python versions is an important step to increase the number of potential users.</p>
+<p>We can technically conduct tests on our local computer by making virtual environment with different python versions. However, this would be a tedious and boring task. We will how we can manage the testing process using a online service called <a href="https://travis-ci.org/">Travis CI</a>. Travis CI is a free continuous integration platform for GitHub projects, and we can use it to automate the package testing. I describe the process briefly below. See <a href="https://docs.travis-ci.com/user/getting-started">official introduction</a> for more details.</p>
+<ol style="list-style-type: decimal">
+<li>Sign in to Travic CI with your Github account (If you do not have one yet, create one).</li>
+<li>Go to your profile page on Travic CI (there is a link on the upper right corner as of the time I write this page).</li>
+<li>Turn on the repository for which you would like to test. If you see a check mark, it is on. <img src="travis-switch.png" alt="travis-switch" /></li>
+<li>Go to your Github page, and create a file named <code>.travis.yml</code> at the root directory of the repository to test.</li>
+</ol>
+<p>Then, every time the respository is updated, a test is invoked on Travis CI under the configuration specified in <code>.travis.yml</code> file. Below is an example test configuration for our package. The package is tested on python 2.7 and 3.3 through 3.6. The package shall be installed by <code>pip install .</code> (no need for <code>pip install -r requirements.txt</code> since we have specified the requirement by the <code>install_requires</code>). The test command is <code>py.test</code>, which is an old alias for <code>pytest</code>. On Travis CI we need to use it since <code>pytest</code> is not built in for python 3.3 or older.</p>
+<p><em>.travis.yml</em></p>
+<pre><code>language: python
+python:
+  - &quot;2.7&quot;
+  - &quot;3.3&quot;
+  - &quot;3.4&quot;
+  - &quot;3.5&quot;
+  - &quot;3.6&quot;
+# command to install dependencies
+install:
+  - pip install .
+# command to run tests
+script:
+- py.test -v tests/</code></pre>
+<p>When you commit a change on Github repository, the test automotically starts on Travis CI. After a while, you can see the test result in the build status page of the repository.</p>
+<h2 id="write-documentation">Write Documentation</h2>
+<p>Users of our packages are not as familiar with its functionalities as we are. Even us in the future may not remember what we write today. Typically we would like quickly to know: what functions do for us, what types of inputs we need to supply, and what outputs are returned. All of these should be in the package documentation.</p>
+<p>Here, we will put together the documentation for our package in three steps. First, we will add so called &quot;docstrings&quot; to our source code. By doing so, package users can see the function description by calling <code>help(&lt;function name&gt;)</code> during python sessions. Second, we will generate documation HTML automatically by using <code>sphinx</code> module. <code>sphinx</code> reads in all packages and modules under a specified project tree and create a nice-looking (much nicer than me working hard for ten years) document for us. Third, we publish this document using the github pages feature.</p>
+<h3 id="write-docstrings">Write Docstrings</h3>
+<p>A docstring is a string literal that occurs as the first statement in a module, function, class, or method definition (<a href="https://www.python.org/dev/peps/pep-0257/">PEP 257</a>). Typically people encloses docstrings by <code>&quot;&quot;&quot;</code>, <em>i.e.</em> three double quotations.</p>
+<p>We have several formats to follow when writing python docstrings (<em>e.g.</em> see this <a href="http://stackoverflow.com/questions/3898572/what-is-the-standard-python-docstring-format">discussion thread</a>). Among them, it seems <strong>reStructuredText</strong> format is the most standard choice, which we follow in this document.</p>
+<p>Below is <code>math.py</code> equipped with docstrings. At first, we write <code>&quot;Math Releted Functions&quot;</code>. This is regarded as a description for the <code>math</code> module as a whole. We also add a docstring to each function. Note that we use keywords such as <code>:param:</code> and <code>:return:</code> to describe specific parts of the functions. See, for example, <a href="https://thomas-cokelaer.info/tutorials/sphinx/docstring_python.html">this link</a> for more about the grammar.</p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="co"># -*- coding: utf-8 -*-</span>
+<span class="co">&quot;&quot;&quot;</span>
+<span class="co">Math Related Functions</span>
+<span class="co">&quot;&quot;&quot;</span>
+
+<span class="ch">import</span> numpy <span class="ch">as</span> np
+<span class="ch">from</span> pkg_resources <span class="ch">import</span> resource_stream
+
+<span class="kw">def</span> sumproduct(x, y):
+    <span class="co">&quot;&quot;&quot;</span>
+<span class="co">    Compute the sum of elementwise product of two vectors</span>
+<span class="co">    </span>
+<span class="co">    :param x: vector</span>
+<span class="co">    :param y: vector</span>
+<span class="co">    :type x: list of numbers or 1-dim numpy.array</span>
+<span class="co">    :type y: list of numbers of 1-dim numpy.array</span>
+<span class="co">    :return: sum of elementwise product of x and y</span>
+<span class="co">    :rtype: number</span>
+<span class="co">    &quot;&quot;&quot;</span>
+    <span class="kw">return</span> np.dot(np.array(x), np.array(y))
+
+<span class="kw">def</span> magic_square(n):
+    <span class="co">&quot;&quot;&quot;</span>
+<span class="co">    Return a magic square of specified size</span>
+<span class="co">    </span>
+<span class="co">    :param n: size of magic square</span>
+<span class="co">    :type n: int</span>
+<span class="co">    :return: magic square of size n if n is supported. Otherwise None</span>
+<span class="co">    :rtype: 2-dim numpy.array of shape (n,n) if supported. Otherwise None</span>
+<span class="co">    &quot;&quot;&quot;</span>
+    <span class="kw">if</span> n in [<span class="dv">3</span>, <span class="dv">4</span>]:
+        <span class="kw">with</span> resource_stream(<span class="ot">__name__</span>, <span class="st">&#39;magic_square/</span><span class="ot">%d</span><span class="st">.npy&#39;</span> % n) <span class="ch">as</span> f:
+            x = np.load(f)
+        <span class="kw">return</span> x
+    <span class="kw">else</span>:
+        <span class="dt">print</span>(<span class="st">&#39;&quot;n&quot; must be 3 or 4&#39;</span>)</code></pre>
+<p>Run <code>pip install -U .</code>, and run:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">python</span> -c <span class="st">&quot;import testpack.math; help(testpack.math)&quot;</span></code></pre>
+<p>You should see what we wrote above on the console.</p>
+<h3 id="generate-document-page-with-sphinx">Generate Document Page with <code>sphinx</code></h3>
+<p>Once we finish writing docstrings for all packages, modules, classes and functions we want to describe, we would like to put them all together to a documentation. We use <code>sphinx</code> package for this. If you do not have <code>sphinx</code> package yet, run:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">pip</span> install sphinx</code></pre>
+<p>to install it (or <code>conda install sphinx</code> if you are using anaconda/miniconda distribution). The package comes with a bunch of command line tools. Among them, we use <code>sphinx-apidoc</code>, which I find is the easiest option. At the <code>pypacktest/</code> folder, run the following command:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">sphinx-apidoc</span> -F -o apidoc . tests/ setup.py testpack/command.py</code></pre>
+<p><code>sphinx-apidoc</code> set up document generator for a python project. With the flag <code>-F</code> (meaning &quot;FULL&quot;), a full sphinx project is automatically set up. <code>-o</code> spefifies the location where the sphinx project is generated. Here, we set <code>apidoc/</code> folder under <code>pypacktest</code>. The first unnamed argument for <code>sphinx-apidoc</code> is the root directory of the python project. The program searches python packages and modules under this directory. <code>.</code> means the current directory, <em>i.e.</em> <code>pypacktest/</code>. The rest of arguments indicate exluded patterns. Directories and modules that match these patterns are excluded from documentation. In this example, I excluded <code>tests/</code> package and <code>setup.py</code> module since they are not provided to the user. as well as <code>testpack.command</code> (I do not mean to say codes for command line tools are not to be documented, though).</p>
+<p>The command above will generate <code>apidoc/</code> file with a bunch of files and folders inside. Move to the directory and run::</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">make</span> html</code></pre>
+<p>Then, the documentation files are generated in <code>_build/html/</code> directory. If you open <code>_build/html/index.html</code> file on a browser application, you will see a nicely styled documentation page like the snapshot below.</p>
+<p>*pypacktest/apidoc/_build/html/index.html* <img src="docsnap.png" alt="docsnap" /></p>
+<p>Although the default page is already of great quality, we may want to make a bit of edition to fit our project. First, you see the copyright statement in the footer of the page as &quot;©2017, Author&quot;. To change this to your name, you can either add <code>-A &lt;your name&gt;</code> option when you run <code>spinx-apidoc</code> in the first place, or edit the relevant part of <code>apidoc/conf.py</code> file.</p>
+<p>snippet of <em>apidoc/conf.py</em></p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="co"># General information about the project.</span>
+project = <span class="st">&#39;pypacktest&#39;</span>
+copyright = <span class="st">&#39;2017, YO Name&#39;</span>
+author = <span class="st">&#39;Your Own Name&#39;</span></code></pre>
+<p>Also, we have a variety of style choices for the generated page. We can change the stle by editing <code>html_theme</code> in the <code>apidoc/conf.py</code>. Check out the <a href="http://www.sphinx-doc.org/en/stable/theming.html">official documentation</a> to find your favorite theme and revise the <code>apidoc/conf.py</code> like below:</p>
+<p>snippet of <em>apidoc/conf.py</em></p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="co"># The theme to use for HTML and HTML Help pages.  See the documentation for</span>
+<span class="co"># a list of builtin themes.</span>
+<span class="co">#</span>
+html_theme = <span class="st">&#39;haiku&#39;</span></code></pre>
+<h3 id="publish-the-document-through-github-pages">Publish the Document through Github Pages</h3>
+<p><a href="apidoc/html/">Link to API Documentation</a></p>
+<h2 id="register-to-pypi">Register to PyPI</h2>
+<p>TBA</p>
