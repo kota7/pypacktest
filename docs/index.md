@@ -995,7 +995,7 @@ When you commit a change on Github repository, the test automotically starts on 
 
 ## Write Documentation
 
-
+Users of our packages are not as familiar with its functionalities as we are.
 
 [Link to API Documentation](apidoc/_build/html/)
 
