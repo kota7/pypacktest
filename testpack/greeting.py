@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""
+Say Hi and Some Nice Words
+"""
+
 
 from pkg_resources import resource_string
 

@@ -998,5 +998,5 @@ TBA
 
 ## Write Documentation
 
-TBA
+[Link to API Documentation](apidoc/_build/html/)
 
