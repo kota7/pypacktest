@@ -49,8 +49,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'pypacktest'
-copyright = '2017, Author'
-author = 'Author'
+copyright = '2017, Kota Mori'
+author = 'Kota Mori'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
