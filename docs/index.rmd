@@ -1014,6 +1014,7 @@ Below is `math.py` equipped with docstrings.
 At first, we write `"Math Releted Functions"`.  This is regarded as a description for the `math` module as a whole.
 We also add a docstring to each function.  Note that we use keywords such as  `:param:` and `:return:` to describe specific parts of the functions.  See, for example, [this link](https://thomas-cokelaer.info/tutorials/sphinx/docstring_python.html) for more about the grammar.
 
+*math.py*
 ```python
 # -*- coding: utf-8 -*-
 """
@@ -1081,7 +1082,6 @@ $ make html
 ```
 Then, the documentation files are generated in `_build/html/` directory.  If you open `_build/html/index.html` file on a browser application, you will see a nicely styled documentation page like the snapshot below.
 
-*pypacktest/apidoc/_build/html/index.html*
 ![docsnap](docsnap.png)
 
 
