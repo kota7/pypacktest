@@ -591,7 +591,7 @@ Congraturations.  We have finally published our packages to people in the world.
 TBA
 
 
-## Test Package
+## Testing
 
 Designing automoated tests is a fundamental part of package building.  A comprehensive set of tests would detect any broken functionalities caused by future development or possibly by revisions of the dependencies.
 
@@ -992,11 +992,15 @@ script:
 When you commit a change on Github repository, the test automotically starts on Travis CI.  After a while, you can see the test result in the build status page of the repository.
 
 
-## Register on PyPI
-
-TBA
 
 ## Write Documentation
 
+
+
 [Link to API Documentation](apidoc/_build/html/)
 
+
+
+## Register to PyPI
+
+TBA
