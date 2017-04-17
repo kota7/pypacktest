@@ -470,7 +470,7 @@ $ oscar-wilde
 Life is too important to be taken seriously.
 ```
 
-## Use `entry_points`
+### Use `entry_points`
 
 An alternative way of including executable files in python packages is to specify `entry_points` field in the `setup.py`.  In this approach, we write a *function* instead of a script file.  Let's see.
 

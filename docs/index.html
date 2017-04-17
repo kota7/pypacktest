@@ -133,8 +133,7 @@ $(document).ready(function () {
 </ul></li>
 <li><a href="#include-command-line-tool">Include Command Line Tool</a><ul>
 <li><a href="#specify-scripts-field">Specify <code>scripts</code> field</a></li>
-</ul></li>
-<li><a href="#use-entry_points">Use <code>entry_points</code></a><ul>
+<li><a href="#use-entry_points">Use <code>entry_points</code></a></li>
 <li><a href="#which-is-better">Which is better?</a></li>
 </ul></li>
 <li><a href="#publish-on-github">Publish on Github</a></li>
@@ -447,9 +446,8 @@ setup(
 <pre class="bash"><code>$ oscar-wilde
 Life is too important to be taken seriously.</code></pre>
 </div>
-</div>
-<div id="use-entry_points" class="section level2">
-<h2>Use <code>entry_points</code></h2>
+<div id="use-entry_points" class="section level3">
+<h3>Use <code>entry_points</code></h3>
 <p>An alternative way of including executable files in python packages is to specify <code>entry_points</code> field in the <code>setup.py</code>. In this approach, we write a <em>function</em> instead of a script file. Let’s see.</p>
 <p>In the <code>testpack/</code> folder, add a file named <code>command.py</code> as below:</p>
 <p><em>command.py</em></p>
@@ -525,6 +523,7 @@ $ magic-square a
 usage: magic-square [-h] n
 magic-square: error: argument n: invalid int value: 'a'</code></pre>
 <p>Notice that we only wrote a function, and the executable file has been created during the installation of the package. If you are curious and want to see what kind of file has been created, run <code>which magic-square</code> on bash terminal or <code>where magic-square</code> on Windows command prompt. This will tell you the location of the created executable file. You can take a look at the content of it since it is a python script.</p>
+</div>
 <div id="which-is-better" class="section level3">
 <h3>Which is better?</h3>
 <p>We have seen two approaches for adding executable command line tools to our packages. So which is better? As far as I notice in the developers’ discussion, people are generally shifting towards the second approach (<em>i.e.</em> using <code>entry_point</code>). Hence, unless you have a strong preference for the <code>script</code> approach, it seems employing <code>entry_point</code> approach is the safer choice. In this document, we will keep <code>bin/</code> folder for the purpose of demonstration. See <em>e.g.</em>, discussions on <a href="http://stackoverflow.com/questions/18787036/difference-between-entry-points-console-scripts-and-scripts-in-setup-py">stackoverflow</a> and this <a href="https://packaging.python.org/distributing/#scripts">documentation</a>.</p>
