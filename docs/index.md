@@ -995,9 +995,119 @@ When you commit a change on Github repository, the test automotically starts on 
 
 ## Write Documentation
 
-Users of our packages are not as familiar with its functionalities as we are.
+Users of our packages are not as familiar with its functionalities as we are.  Even us in the future may not remember what we write today.  Typically we would like quickly to know: what functions do for us, what types of inputs we need to supply, and what outputs are returned.  All of these should be in the package documentation.
 
-[Link to API Documentation](apidoc/_build/html/)
+Here, we will put together the documentation for our package in three steps.
+First, we will add so called "docstrings" to our source code.  By doing so, package users can see the function description by calling `help(<function name>)` during python sessions.
+Second, we will generate documation HTML automatically by using `sphinx` module.  `sphinx` reads in all packages and modules under a specified project tree and create a nice-looking (much nicer than me working hard for ten years) document for us.
+Third, we publish this document using the github pages feature.
+
+### Write Docstrings
+
+A docstring is a string literal that occurs as the first statement in a module, function, class, or method definition ([PEP 257](https://www.python.org/dev/peps/pep-0257/)).  Typically people encloses docstrings by `"""`, *i.e.* three double quotations.
+
+We have several formats to follow when writing python docstrings (*e.g.* see this [discussion thread](http://stackoverflow.com/questions/3898572/what-is-the-standard-python-docstring-format)).  Among them, it seems **reStructuredText** format is the most standard choice, which we follow in this document.
+
+Below is `math.py` equipped with docstrings.
+At first, we write `"Math Releted Functions"`.  This is regarded as a description for the `math` module as a whole.
+We also add a docstring to each function.  Note that we use keywords such as  `:param:` and `:return:` to describe specific parts of the functions.  See, for example, [this link](https://thomas-cokelaer.info/tutorials/sphinx/docstring_python.html) for more about the grammar.
+
+```python
+# -*- coding: utf-8 -*-
+"""
+Math Related Functions
+"""
+
+import numpy as np
+from pkg_resources import resource_stream
+
+def sumproduct(x, y):
+    """
+    Compute the sum of elementwise product of two vectors
+    
+    :param x: vector
+    :param y: vector
+    :type x: list of numbers or 1-dim numpy.array
+    :type y: list of numbers of 1-dim numpy.array
+    :return: sum of elementwise product of x and y
+    :rtype: number
+    """
+    return np.dot(np.array(x), np.array(y))
+
+def magic_square(n):
+    """
+    Return a magic square of specified size
+    
+    :param n: size of magic square
+    :type n: int
+    :return: magic square of size n if n is supported. Otherwise None
+    :rtype: 2-dim numpy.array of shape (n,n) if supported. Otherwise None
+    """
+    if n in [3, 4]:
+        with resource_stream(__name__, 'magic_square/%d.npy' % n) as f:
+            x = np.load(f)
+        return x
+    else:
+        print('"n" must be 3 or 4')
+```
+
+Run `pip install -U .`, and run:
+```bash
+$ python -c "import testpack.math; help(testpack.math)"
+```
+You should see what we wrote above on the console.
+
+
+### Generate Document Page with `sphinx`
+
+Once we finish writing docstrings for all packages, modules, classes and functions we want to describe, we would like to put them all together to a documentation.  We use `sphinx` package for this.
+If you do not have `sphinx` package yet, run:
+```bash
+$ pip install sphinx
+```
+to install it (or `conda install sphinx` if you are using anaconda/miniconda distribution).  The package comes with a bunch of command line tools.  Among them, we use `sphinx-apidoc`, which I find is the easiest option.
+At the `pypacktest/` folder, run the following command:
+```bash
+$ sphinx-apidoc -F -o apidoc . tests/ setup.py testpack/command.py
+```
+`sphinx-apidoc` set up document generator for a python project.  With the flag `-F` (meaning "FULL"), a full sphinx project is automatically set up.  `-o` spefifies the location where the sphinx project is generated.  Here, we set `apidoc/` folder under `pypacktest`.
+The first unnamed argument for `sphinx-apidoc` is the root directory of the python project.  The program searches python packages and modules under this directory.  `.` means the current directory, *i.e.* `pypacktest/`.  The rest of arguments indicate exluded patterns.  Directories and modules that match these patterns are excluded from documentation.  In this example, I excluded `tests/` package and `setup.py` module since they are not provided to the user. as well as `testpack.command` (I do not mean to say codes for command line tools are not to be documented, though).
+
+The command above will generate `apidoc/` file with a bunch of files and folders inside.  Move to the directory and run::
+```bash
+$ make html
+```
+Then, the documentation files are generated in `_build/html/` directory.  If you open `_build/html/index.html` file on a browser application, you will see a nicely styled documentation page like the snapshot below.
+
+*pypacktest/apidoc/_build/html/index.html*
+![docsnap](docsnap.png)
+
+
+Although the default page is already of great quality, we may want to make a bit of edition to fit our project.  First, you see the copyright statement in the footer of the page as "&copy;2017, Author".  To change this to your name, you can either add `-A <your name>` option when you run `spinx-apidoc` in the first place, or edit the relevant part of `apidoc/conf.py` file.
+
+snippet of *apidoc/conf.py*
+```python
+# General information about the project.
+project = 'pypacktest'
+copyright = '2017, YO Name'
+author = 'Your Own Name'
+```
+
+Also, we have a variety of style choices for the generated page.  We can change the stle by editing `html_theme` in the `apidoc/conf.py`.  Check out the [official documentation](http://www.sphinx-doc.org/en/stable/theming.html) to find your favorite theme and revise the `apidoc/conf.py` like below:
+
+snippet of *apidoc/conf.py*
+```python
+# The theme to use for HTML and HTML Help pages.  See the documentation for
+# a list of builtin themes.
+#
+html_theme = 'haiku'
+```
+
+### Publish the Document through Github Pages
+
+
+
+[Link to API Documentation](apidoc/html/)
 
 
 

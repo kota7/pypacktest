@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Math Related Test Functions
+Math Related Functions
 """
 
 

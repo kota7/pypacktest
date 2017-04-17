@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Say Hi and Some Nice Words
+Say Hi and Give Some Nice Words
 """
 
 
@@ -19,7 +19,7 @@ def say_hello():
 
 def give_quote():
     """
-    Print a nice quote by Oscar Wilde
+    Print a nice quote by Oscar Wilde on console
     
     :return: None
     """ 
