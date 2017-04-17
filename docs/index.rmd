@@ -2,7 +2,10 @@
 title: "A Step-by-Step Guide for First Python Package Development"
 author: "Kota Mori"
 date: "April 18, 2017"
-output: html_document
+output:
+  html_document:
+    toc: true
+    theme: united
 ---
 
 This document shows readers how to build their own python packages from the very scratch up to the registration to PyPI (Python Package Index).
