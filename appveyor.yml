@@ -16,7 +16,7 @@ environment:
 
 install:
   - ps: pip install pytest
-  - ps: pip install ."
+  - ps: pip install .
 
 build: off
 
